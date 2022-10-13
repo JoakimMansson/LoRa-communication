@@ -40,16 +40,8 @@ void setup()
   RAKLoRa.rk_initP2P("869525000", 7, 0, 1, 5, 5);
 }
 
-void loop() {
-  //The buffer is the data you wish to send in a hex format. Change this variable to be the data you wish to send.
-  char* buffer = "52544B";
-
-
-  String data = RAKLoRa.rk_recvData();
-  Serial.print("Data received: ");
-  Serial.println(data);
-
-  
+void loop() 
+{
 
 }
 
