@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-class LoRa
+class LoRa_P2P
 {
 
   private:
@@ -19,12 +19,43 @@ class LoRa
       RAKSerial.println(command);
     }
 
+    // Sets frequency, spreadfactirm bandwidth, codingrate, preamble and power
     bool set_config(String frequency, int SF, int BW, int CR, int PRlen, int PWR)
     {
       String command = "at+set_config=lorap2p:" + frequency + ":" + SF + ":" + BW + ":" + CR + ":" + PRlen + ":" + PWR;
       String ret = RAKSerial.println(command);
       cout << ret;
+      if(ret == "OK")
+      {
+        return True;
+      }
+      else
+      {
+        return False;
+      }
+    }
+
+    bool set_transfer_mode(bool is_receiver))
+    {
+      String command = "at+set_config=lorap2p: transfer_mode:";
+
+      if(is_receiver)
+      {
+        command += 1;
+      }
+      else
+      {
+        command += 2;
+      }
       
+      String ret = RAKSerial.println(command);
+      cout << ret;
+    }
+
+    bool send_data(String data)
+    {
+      String command = "at+send=lorap2p:" + data
+
     }
 
 };
