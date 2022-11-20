@@ -105,21 +105,47 @@ void RAK811::rk_reset(int mode)
   }
 }
 
-bool RAK811::rk_setWorkingMode(int mode)
+String RAK811::rk_exitBootMode(void)
+{
+  String command = "";
+  command = "at+set_config=device:restart";
+  String ret = sendRawCommand(command);
+  return ret;
+}
+
+String RAK811::rk_getCurrentMode(void)
+{
+  String command = "";
+  command = "at+mode";
+
+  String ret = sendRawCommand(command);
+  if(ret.startsWith("OK"))
+  {
+    return ret;
+  }
+  else
+  {
+    return "SNOAJMSOJNJINWOMSKOÖA";
+  }
+  //return ret;
+}
+
+String RAK811::rk_setWorkingMode(int mode)
 {
   String ver;
   switch (mode)
   {
     case 0:
-      ver = sendRawCommand(F("at+mode=lora:0")); //Set LoRaWAN Mode.
+      ver = sendRawCommand("at+mode=0"); //Set LoRaWAN Mode.
       break;
     case 1:
-      ver = sendRawCommand(F("at+mode=1")); //Set LoRaP2P Mode.
+      ver = sendRawCommand("at+mode=1"); //Set LoRaP2P Mode.
       break;
-    default:
-      return false;
   }
-  if (ver.startsWith("OK"))
+  return ver;
+  //Serial.println(ver);
+  /*
+  if(ver.startsWith("OK"))
   {
     return true;
   }
@@ -127,8 +153,17 @@ bool RAK811::rk_setWorkingMode(int mode)
   {
     return false;
   }
+  */
 }
 
+String RAK811::rk_currentVersion(void)
+{
+  String command = "";
+  command = "at+version";
+  
+  String ret = sendRawCommand(command);
+  return ret;
+}
 
 bool RAK811::rk_sendData(int type, int port, char* datahex)
 {
@@ -207,13 +242,32 @@ String RAK811::rk_getP2PConfig(void)
   return ret;
 }
 
-bool RAK811::rk_initP2P(String FREQ, int SF, int BW, int CR, int PRlen, int PWR)
+String RAK811::rk_initP2P(String FREQ, String SF, String BW, String CR, String PRlen, String PWR)
 {
   String command = "";
   command = "at+rf_config=" + FREQ + "," + SF + "," + BW + "," + CR + "," + PRlen + "," + PWR;
 //  Serial.println(command);
   String ret = sendRawCommand(command);
+  return ret;
+  /*
   if (ret.startsWith("OK"))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+  */
+}
+
+bool RAK811::rk_initTransferMode(int mode)
+{
+  String command = "";
+  command = "at+set_config=lorap2p:transfer_mode:" + mode;
+
+  String ret = sendRawCommand(command);
+  if(ret.startsWith("OK"))
   {
     return true;
   }
@@ -247,12 +301,15 @@ bool RAK811::rk_recvP2PData(int report_en)
   }
 }
 
-bool RAK811::rk_sendP2PData(int CNTS, String interver, char* DATAHex)
+String RAK811::rk_sendP2PData(String nrPackets, String timeInterval, String DATAHex)
 {
   String command = "";
-  command = "at+txc=" + (String)CNTS + "," + interver + "," + DATAHex;
+  command = "at+txc=" + nrPackets + "," + timeInterval + "," + DATAHex;
 //  Serial.println(command);
+  
   String ret = sendRawCommand(command);
+  return ret;
+  /*
   if (ret.startsWith("OK"))
   {
     return true;
@@ -261,6 +318,7 @@ bool RAK811::rk_sendP2PData(int CNTS, String interver, char* DATAHex)
   {
     return false;
   }
+  */
 }
 
 bool RAK811::rk_stopSendP2PData(void)
@@ -388,113 +446,5 @@ String RAK811::sendRawCommand(String command)
 /*--------------------------------------------------------------------------------*/
 
 
-bool RAK811::rk_joinLoRaNetwork(int mode)
-{
-  String ver;
-  switch (mode)
-  {
-    case 0:
-      ver = sendRawCommand(F("at+join=otaa")); //join Network through OTAA mode.
-      break;
-    case 1:
-      ver = sendRawCommand(F("at+join=abp")); //join Network through ABP mode.
-      break;
-    default:
-      return false;
-  }
-  if (ver.startsWith("OK"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
+ 
 
-bool RAK811::rk_initOTAA(String devEUI, String appEUI, String appKEY)
-{
-  String command = "";
-  if (devEUI.length() == 16)
-  {
-    _devEUI = devEUI;
-  }
-  else
-  {
-    String ret = sendRawCommand(F("at+get_config=dev_eui"));
-    const char* ver = ret.c_str();
-    ret = &ver[2];
-//  Serial.println(ret);
-    if (ret.length() == 16)
-    {
-      _devEUI = ret;
-    }
-  }
-  if (appEUI.length() == 16)
-  {
-    _appEUI = appEUI;
-  }
-  else
-  {
-    Serial.println("The parameter appEUI is set incorrectly!");
-  }
-  if (appKEY.length() == 32 )
-  {
-    _appKEY = appKEY;
-  }
-  else
-  {
-    Serial.println("The parameter appKEY is set incorrectly!");
-  }
-  command = "at+set_config=dev_eui:" + _devEUI + "&app_eui:" + _appEUI + "&app_key:" + _appKEY;
-//  Serial.println(command);
-  String ret = sendRawCommand(command);
-  if (ret.startsWith("OK"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-bool RAK811::rk_initABP(String devADDR, String nwksKEY, String appsKEY)
-{
-  String command = "";
-  if (devADDR.length() == 8)
-  {
-    _devADDR = devADDR;
-  }
-  else
-  {
-    Serial.println("The parameter devADDR is set incorrectly!");
-  }
-  if (nwksKEY.length() == 32)
-  {
-    _nwksKEY = nwksKEY;
-  }
-  else
-  {
-    Serial.println("The parameter nwksKEY is set incorrectly!");
-  }
-  if (appsKEY.length() == 32 )
-  {
-    _appsKEY = appsKEY;
-  }
-  else
-  {
-    Serial.println("The parameter appsKEY is set incorrectly!");
-  }
-  command = "at+set_config=dev_addr:" + _devADDR + "&nwks_key:" + _nwksKEY + "&apps_key:" + _appsKEY;
-//  Serial.println(command);
-  String ret = sendRawCommand(command);
-  if (ret.startsWith("OK"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}

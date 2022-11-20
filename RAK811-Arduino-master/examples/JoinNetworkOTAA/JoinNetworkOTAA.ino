@@ -1,23 +1,11 @@
-
-
 #include "RAK811.h"
 #include "SoftwareSerial.h"
-#define WORK_MODE LoRaWAN   //  LoRaWAN or LoRaP2P
-#define JOIN_MODE OTAA    //  OTAA or ABP
-#if JOIN_MODE == OTAA
-String DevEui = "00F9D51F899A20BD"; // Fill this out
-String AppEui = "70B3D57ED0013D25"; // Fill this out
-String AppKey = "AB191E16516ED3C5D8534240C29BF557"; // Fill This out
-#else JOIN_MODE == ABP
-String NwkSKey = "";
-String AppSKey = "";
-String DevAddr = "";
+#define WORK_MODE LoRaP2P   //  LoRaWAN or LoRaP2P
 #endif
 #define TXpin 11   // Set the virtual serial port pins
 #define RXpin 10
 #define DebugSerial Serial
 SoftwareSerial RAKSerial(RXpin,TXpin);    // Declare a virtual serial port
-char* buffer = "72616B776972656C657373";
 int RESET_PIN = 12;
 bool InitLoRaWAN(void);
 RAK811 RAKLoRa(RAKSerial,DebugSerial);
@@ -87,6 +75,11 @@ bool InitLoRaWAN(void)
     }
   }
      return false;
+}
+
+bool init_P2P()
+{
+  
 }
 
 void loop() {

@@ -83,7 +83,7 @@ class RAK811
   * mode  = 0: Set the module to LoRaWAN mode.
   * mode  = 1: Set the module to LoRaP2P mode.
   */
-  bool rk_setWorkingMode(int mode);
+  String rk_setWorkingMode(int mode);
 
  /*
   * Initialize the module parameter, which is the parameter that the module must use when adding the OTAA to the network.
@@ -91,28 +91,9 @@ class RAK811
   * appEUI : Application EUI as a HEX string. Example "70B3D57EF00047C0"
   * appKEY : Application key as a HEX string. Example "5D833B4696D5E01E2F8DC880E30BA5FE"
   */
-  bool rk_initOTAA(String devEUI, String appEUI, String appKEY);
 
- /*
-  * Initialize the module parameter, which is the parameter that the module must use when adding the ABP to the network.
-  * devADDR : The device address as a HEX string. Example "00112233"
-  * nwksKEY : Network Session Key as a HEX string. Example "3432567afde4525e7890cfea234a5821"
-  * appsKEY : Application Session Key as a HEX string. Example "a48adfc393a0de458319236537a11d90"
-  */
-  bool rk_initABP(String devADDR, String nwksKEY, String appsKEY);
 
- /*
-  * Set the activation mode to join the network.And join the network.
-  * mode  = 0: join a network using over the air activation..
-  * mode  = 1: join a network using personalization.
-  * Before using this command, you must call one of the rk_initOTAA and rk_initABP functions
-  */
-  bool rk_joinLoRaNetwork(int mode);
 
- /*
-  * Get the received signal strength and signal to noise ratio.Is negative, the greater the value the better
-  * Through the last packet received, from which the LoRa gateway or base station signal strength.
-  */
   String rk_getSignal(void);
 
  /*
@@ -140,6 +121,12 @@ class RAK811
   * datahex : hex value(no space). max 64 byte.
   * This function can only be used in module work in LoRaWAN mode.
   */
+  String rk_exitBootMode(void);
+
+  String rk_getCurrentMode(void);
+
+  String rk_currentVersion(void);
+
   bool rk_sendData(int type, int port, char* datahex);
 
   /*
@@ -176,7 +163,7 @@ class RAK811
   * PWR : Tx power, default 14 (5-20)
   * User can use this command to build their point to point communication or RFtest command. It will save to flash.
   */
-  bool rk_initP2P(String FREQ, int SF, int BW, int CR, int PRlen, int PWR);
+  String rk_initP2P(String FREQ, String SF, String BW, String CR, String PRlen, String PWR);
 
  /*
   * Set LoRaP2P Tx continues, module will send the counts packet with rfconfig until receive the rk_stopSendP2PData command or rk_reset,.
@@ -184,7 +171,12 @@ class RAK811
   * interver : Continuous transmission interval.This interval is begin with last packet send success or fail., (10-3600000ms)
   * DATAHex : hex value ( no space) , max 64 byte.
   */
-  bool rk_sendP2PData(int CNTS, String interver, char* DATAHex);
+
+  bool rk_initTransferMode(int mode);
+  
+
+
+  String rk_sendP2PData(String nrPackets, String timeInterval, String DATAHex);
 
  /*
   * Set LoRaP2P Rx continues,module will receive packets with rfconfig until receive the rk_stopRecvP2PData command or rk_reset.
