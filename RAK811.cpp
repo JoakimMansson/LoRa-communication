@@ -266,7 +266,7 @@ bool RAK811::rk_initTransferMode(int mode)
   }
 }
 
-bool RAK811::rk_recvP2PData(int report_en)
+String RAK811::rk_recvP2PData(int report_en)
 {
   String ver;
   switch (report_en)
@@ -277,9 +277,9 @@ bool RAK811::rk_recvP2PData(int report_en)
     case 1:
       ver = sendRawCommand(F("at+rxc=1")); //
       break;
-    default:
-      return false;
   }
+  return ver;
+  /*
   if (ver.startsWith("OK"))
   {
     return true;
@@ -288,6 +288,7 @@ bool RAK811::rk_recvP2PData(int report_en)
   {
     return false;
   }
+  */
 }
 
 String RAK811::rk_sendP2PData(String nrPackets, String timeInterval, String DATAHex)

@@ -52,17 +52,15 @@ void setup()
   String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "10", "0", "1", "8", "14");
   DebugSerial.println("P2P initialized: " + P2pInitialized);
 
-
-  DebugSerial.print("Sending packets status: " + RAKLoRa.rk_sendP2PData("100", "1000", "1"));
+  
+  DebugSerial.print("Receiving packets status: " + RAKLoRa.rk_recvP2PData(1));
 }
 
 void loop() 
 {
-
-}
-
-void init_P2P()
-{
-    
+  if(RAKSerial.read()>0)
+  {
+    DebugSerial.println(RAKSerial.read());
+  }
 }
 

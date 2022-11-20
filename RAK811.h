@@ -174,7 +174,7 @@ class RAK811
   * report_en : enable report to host or not. 0 : not enable.  1 : enable.
   * If used normal rx ,can set the report_en :1, report data to host.
   */
-  bool rk_recvP2PData(int report_en);
+  String rk_recvP2PData(int report_en);
 
  /*
   * Set LoRaP2P Tx continues stop. Radio will switch to sleep mode .
