@@ -1,13 +1,3 @@
-/*
- * A library for controlling RAK811 LoRa radio.
- *
- * @Author Chace.cao
- * @Author john.zou
- * @Author Ryan.Walmsley
- * @Date 11/05/2017
- *
- */
-
 #include "Arduino.h"
 #include "RAK811.h"
 
@@ -21,7 +11,6 @@ extern "C" {
 */
 
 
-// Convert Bytes To String Function by Rob Bricheno
 const char *hexdigits = "0123456789ABCDEF";
 
 char* convertBytesToString (uint8_t* inputBuffer, int inputSize) {

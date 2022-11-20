@@ -1,12 +1,3 @@
-/*
- * A library for controlling RAK811 LoRa radio.
- *
- * @Author Chace.cao
- * @Author john.zou
- * @Date 11/05/2017
- *
- */
-
 #ifndef RAK811_h
 #define RAK811_h
 #define LoRaWAN 0
