@@ -12,11 +12,13 @@
 #define DebugSerial Serial
 SoftwareSerial RAKSerial(RXpin,TXpin);    // Declare a virtual serial port
 int RESET_PIN = 12;
+int ERROR_PIN = 13;
 RAK811 RAKLoRa(RAKSerial,DebugSerial);
 
 void setup() 
 {
   pinMode(RESET_PIN, OUTPUT);
+  pinMode(ERROR_PIN, OUTPUT);
   
   DebugSerial.begin(9600);
   
@@ -53,12 +55,26 @@ void setup()
   DebugSerial.println("P2P initialized: " + P2pInitialized);
 
 
-  DebugSerial.print("Sending packets status: " + RAKLoRa.rk_sendP2PData("100", "1000", "1"));
+  //DebugSerial.print("Sending packets status: " + RAKLoRa.rk_sendP2PData("100", "1000", "1337"));
 }
 
+int i = 10;
 void loop() 
 {
+  String status = RAKLoRa.rk_sendP2PData("1", "1", String(i));
+  DebugSerial.println("Sending packets status: " + status);
 
+  if(!status.compareTo("ERROR-1"))
+  {
+    digitalWrite(ERROR_PIN, HIGH);
+  }
+  else
+  {
+    digitalWrite(ERROR_PIN, LOW);
+  }
+
+  i++;
+  delay(200);
 }
 
 void init_P2P()

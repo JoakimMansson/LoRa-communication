@@ -18,6 +18,7 @@ void setup()
 {
   pinMode(RESET_PIN, OUTPUT);
   
+  Serial.begin(9600);
   DebugSerial.begin(9600);
   
   while(DebugSerial.read()>= 0) {}  
@@ -58,9 +59,13 @@ void setup()
 
 void loop() 
 {
-  if(RAKSerial.read()>0)
-  {
-    DebugSerial.println(RAKSerial.read());
+  if(RAKSerial.available() > 0)
+  { 
+
+    char data[RAKSerial.peek()];
+    RAKSerial.readBytesUntil("\n", data, sizeof(data));
+    //DebugSerial.println(data);
+    Serial.println(data);
   }
 }
 

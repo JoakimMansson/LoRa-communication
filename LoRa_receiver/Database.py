@@ -74,4 +74,4 @@ if __name__ == "__main__":
     #sql.createTable("BMS", "bms_ID INTEGER PRIMARY KEY AUTOINCREMENT", "packCurrent VARCHAR(20)")
     #sql.insertInto("BMS", "", "(1 ,'1337')")
     #sql.selectAll("BMS")
-    print(sql.execCommmand("SELECT * FROM BMS"))
+    #print(sql.execCommmand("SELECT * FROM BMS"))
