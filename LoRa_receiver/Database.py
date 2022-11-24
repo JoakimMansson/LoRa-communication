@@ -32,6 +32,8 @@ class sqlConnection():
 
         try:
             self.cursor.execute(command)
+            self.conn.commit()
+            print(self.cursor.fetchall())
         except Exception as e:
             print("Failed creating table: " + tableName + "\n" + str(e))
 
@@ -41,7 +43,7 @@ class sqlConnection():
         command = command + "VALUES " + values + ";"
         self.cursor.execute(command)
         self.conn.commit()
-        #print(command)
+        print(self.cursor.fetchall())
 
 
     def selectAll(self, tableName: str) -> None:
@@ -61,7 +63,7 @@ class sqlConnection():
         if len(obj) == 0:
             self.conn.commit()
         else:
-            return obj
+            print(obj)
     
     def getCursor(self) -> object:
         return self.cursor
@@ -71,7 +73,9 @@ class sqlConnection():
 
 if __name__ == "__main__":
     sql = sqlConnection()
-    #sql.createTable("BMS", "bms_ID INTEGER PRIMARY KEY AUTOINCREMENT", "packCurrent VARCHAR(20)")
-    #sql.insertInto("BMS", "", "(1 ,'1337')")
-    #sql.selectAll("BMS")
-    #print(sql.execCommmand("SELECT * FROM BMS"))
+    sql.createTable("MC_LimitFlags", "TimeDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP PRIMARY KEY", "IPMTemperatureOrMotorTemperature BOOL", "BusVoltageLowerLimit BOOL", "BusVoltageUpperLimit BOOL", "BusCurrent BOOL", "Velocity BOOL", "MotorCurrent BOOL", "OutputVoltagePWM BOOL")
+    #sql.insertInto("BMS_Cell", "(LowCellVoltage, HighCellVoltage, AvgCellVoltage)", "(1337, 1337, 1337)")
+    
+    #sql.execCommmand("DELETE FROM BMS_Pack WHERE PackVoltage=1.0;")
+    #sql.execCommmand("SELECT * FROM BMS_Cell;")
+    #sql.execCommmand("PRAGMA table_info(BMS_Temperatures)")
