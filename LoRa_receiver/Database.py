@@ -9,6 +9,7 @@ class sqlConnection():
         self.cursor = self.conn.cursor()
 
 
+
     # Declare name, datatype and constraints
     # EX:
     # CREATE TABLE tableName(
@@ -73,9 +74,9 @@ class sqlConnection():
 
 if __name__ == "__main__":
     sql = sqlConnection()
-    sql.createTable("MC_LimitFlags", "TimeDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP PRIMARY KEY", "IPMTemperatureOrMotorTemperature BOOL", "BusVoltageLowerLimit BOOL", "BusVoltageUpperLimit BOOL", "BusCurrent BOOL", "Velocity BOOL", "MotorCurrent BOOL", "OutputVoltagePWM BOOL")
+    #sql.createTable("MC_LimitFlags", "TimeDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP PRIMARY KEY", "IPMTemperatureOrMotorTemperature BOOL", "BusVoltageLowerLimit BOOL", "BusVoltageUpperLimit BOOL", "BusCurrent BOOL", "Velocity BOOL", "MotorCurrent BOOL", "OutputVoltagePWM BOOL")
     #sql.insertInto("BMS_Cell", "(LowCellVoltage, HighCellVoltage, AvgCellVoltage)", "(1337, 1337, 1337)")
     
     #sql.execCommmand("DELETE FROM BMS_Pack WHERE PackVoltage=1.0;")
     #sql.execCommmand("SELECT * FROM BMS_Cell;")
-    #sql.execCommmand("PRAGMA table_info(BMS_Temperatures)")
+    sql.execCommmand("PRAGMA table_info(BMS_Failsafes)")

@@ -12,11 +12,13 @@
 #define DebugSerial Serial
 SoftwareSerial RAKSerial(RXpin,TXpin);    // Declare a virtual serial port
 int RESET_PIN = 12;
+int RECEIVED_PIN = 13;
 RAK811 RAKLoRa(RAKSerial,DebugSerial);
 
 void setup() 
 {
   pinMode(RESET_PIN, OUTPUT);
+  pinMode(RECEIVED_PIN, OUTPUT);
   
   Serial.begin(9600);
   DebugSerial.begin(9600);
@@ -66,6 +68,11 @@ void loop()
     RAKSerial.readBytesUntil("\n", data, sizeof(data));
     //DebugSerial.println(data);
     Serial.println(data);
+    digitalWrite(RECEIVED_PIN, HIGH);
+  }
+  else
+  {
+    digitalWrite(RECEIVED_PIN, LOW);
   }
 }
 

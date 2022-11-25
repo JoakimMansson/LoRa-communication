@@ -13,14 +13,17 @@
 SoftwareSerial RAKSerial(RXpin,TXpin);    // Declare a virtual serial port
 int RESET_PIN = 12;
 int ERROR_PIN = 13;
+int SERIAL_AVAILABLE_PIN = 9;
 RAK811 RAKLoRa(RAKSerial,DebugSerial);
 
 void setup() 
 {
   pinMode(RESET_PIN, OUTPUT);
   pinMode(ERROR_PIN, OUTPUT);
+  pinMode(SERIAL_AVAILABLE_PIN, OUTPUT);
   
   DebugSerial.begin(9600);
+  Serial.begin(9600);
   
   while(DebugSerial.read()>= 0) {}  
   while(!DebugSerial);
@@ -61,8 +64,11 @@ void setup()
 int i = 10;
 void loop() 
 {
-  String status = RAKLoRa.rk_sendP2PData("1", "1", String(i));
-  DebugSerial.println("Sending packets status: " + status);
+  digitalWrite(SERIAL_AVAILABLE_PIN, HIGH);
+  while(!Serial.available());
+  String status = RAKLoRa.rk_sendP2PData("1", "1", String(Serial.read()));
+  digitalWrite(SERIAL_AVAILABLE_PIN, LOW);
+  //DebugSerial.println("Sending packets status: " + status);
 
   if(!status.compareTo("ERROR-1"))
   {
@@ -73,12 +79,8 @@ void loop()
     digitalWrite(ERROR_PIN, LOW);
   }
 
-  i++;
+  //i++;
   delay(200);
 }
 
-void init_P2P()
-{
-    
-}
 
