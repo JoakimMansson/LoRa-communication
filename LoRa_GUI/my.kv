@@ -1,0 +1,242 @@
+WindowManager:
+
+    MainScreen:
+
+
+<MainScreen>:
+    name: "Main"
+    size: root.width, root.height
+
+
+    MDFloatLayout:
+        md_bg_color: (0,0,0,1)
+
+        GridLayout:
+            size: root.width, root.height
+            pos_hint: {"x": -0.4}
+            row_force_default: True
+            row_default_height: 80
+            padding: ["50sp", "200sp"]
+            cols: 1
+            rows: 10
+
+#------------------ BMS PACK -------------------#
+
+            Label:
+                text: "BMS_Pack"
+                font_size: "30sp"
+                bold: True
+            
+
+            Label:
+                text: "Pack_Current"
+                font_size: "15sp"
+
+            Label:
+                text: "Pack_Voltage"
+                font_size: "15sp"
+
+            Label:
+                text: "Avg_Pack_Current"
+                font_size: "15sp"
+
+            Label:
+                text: "Pack_SOH"
+                font_size: "15sp"
+
+            Label:
+                text: "SOC"
+                font_size: "15sp"
+
+#------------------ BMS CELL -------------------#
+
+            Label:
+                text: "BMS_Cell"
+                font_size: "30sp"
+                bold: True
+
+            Label:
+                text: "Low_Cell_Voltage"
+                font_size: "15sp"
+
+            Label:
+                text: "High_Cell_Voltage"
+                font_size: "15sp"
+
+            Label:
+                text: "Avg_Cell_Voltage"
+                font_size: "15sp"
+            
+
+
+        GridLayout:
+            size: root.width, root.height
+            pos_hint: {"x": -0.2}
+            row_force_default: True
+            row_default_height: 80
+            padding: ["50sp", "200sp"]
+            cols: 1
+            rows: 12
+
+#------------------ BMS FAILSAFES -------------------#
+
+            Label:
+                text: "BMS_Failsafes"
+                font_size: "30sp"
+                bold: True
+
+            Label:
+                text: "Voltage_Failsafe_Active"
+                font_size: "15sp"
+
+            Label:
+                text: "Current_Failsafe_Active"
+                font_size: "15sp"
+
+            Label:
+                text: "Relay_Failsafe_Active"
+                font_size: "15sp"
+
+            Label:
+                text: "Cell_Balancing_Active"
+                font_size: "15sp"
+
+            Label:
+                text: "Change_Interlock_Failsafe_Active"
+                font_size: "15sp"
+
+            Label:
+                text: "Input_Power_Supply_Failed"
+                font_size: "15sp"
+
+
+    #------------------ BMS TEMPERATURES -------------------#
+
+            Label:
+                text: "BMS_Temperatures"
+                font_size: "30sp"
+                bold: True
+
+            Label:
+                text: "Highest_Temperature"
+                font_size: "15sp"
+
+            Label:
+                text: "Lowest_Temperature"
+                font_size: "15sp"
+
+            Label:
+                text: "Average_Temperature"
+                font_size: "15sp"
+
+            Label:
+                text: "Internal_Temperature"
+                font_size: "15sp"
+
+
+
+        
+        GridLayout:
+            size: root.width, root.height
+            pos_hint: {"x": 0.2}
+            row_force_default: True
+            row_default_height: 80
+            padding: ["50sp", "200sp"]
+            cols: 1
+            rows: 9
+
+#------------------ MC CURRENT & VOLTAGE -------------------#
+
+            Label:
+                text: "MC_Current_Voltage"
+                font_size: "30sp"
+                bold: True
+
+            Label:
+                text: "Bus_Current"
+                font_size: "15sp"
+
+            Label:
+                text: "Bus_Voltage"
+                font_size: "15sp"
+
+
+    #------------------ MC TEMPERATURES -------------------#
+
+            Label:
+                text: "MC_Temperatures"
+                font_size: "30sp"
+                bold: True
+
+            Label:
+                text: "Heatsink_Temperature"
+                font_size: "15sp"
+
+            Label:
+                text: "Motor_Temperature"
+                font_size: "15sp"
+
+
+    #------------------ MC Velocity -------------------#
+
+            Label:
+                text: "MC_Velocity"
+                font_size: "30sp"
+                bold: True
+
+            Label:
+                text: "Motor_Velocity"
+                font_size: "15sp"
+
+            Label:
+                text: "Vehicle_Velocity"
+                font_size: "15sp"
+
+
+        
+        GridLayout:
+            size: root.width, root.height
+            pos_hint: {"x": 0.4}
+            row_force_default: True
+            row_default_height: 80
+            padding: ["50sp", "200sp"]
+            cols: 1
+            rows: 2
+
+#------------------ MC ERRORFLAGS -------------------#
+
+            Label:
+                text: "MC_Error_Flags"
+                font_size: "30sp"
+                bold: True
+
+
+    #------------------ MC LIMITFLAGS -------------------#
+
+            Label:
+                text: "MC_Limit_Flags"
+                font_size: "30sp"
+                bold: True
+
+
+
+
+            
+            
+        
+
+
+
+        Image:
+            source: "HUST_logo.png"
+            pos_hint: {"x": 0, "y": 0.8}
+            size_hint: (1.0, 0.17)
+
+
+
+        
+
+
+
+
+
