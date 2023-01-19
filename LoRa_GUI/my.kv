@@ -13,10 +13,10 @@ WindowManager:
 
         GridLayout:
             size: root.width, root.height
-            pos_hint: {"x": -0.4}
+            pos_hint: {"x": -0.3}
             row_force_default: True
             row_default_height: 80
-            padding: ["50sp", "200sp"]
+            padding: ["50sp", "50sp"]
             cols: 1
             rows: 10
 
@@ -71,10 +71,10 @@ WindowManager:
 
         GridLayout:
             size: root.width, root.height
-            pos_hint: {"x": -0.2}
+            pos_hint: {"x": -0.1}
             row_force_default: True
             row_default_height: 80
-            padding: ["50sp", "200sp"]
+            padding: ["50sp", "50sp"]
             cols: 1
             rows: 12
 
@@ -118,19 +118,19 @@ WindowManager:
                 bold: True
 
             Label:
-                text: "Highest_Temperature"
+                text: "Highest_Temp"
                 font_size: "15sp"
 
             Label:
-                text: "Lowest_Temperature"
+                text: "Lowest_Temp"
                 font_size: "15sp"
 
             Label:
-                text: "Average_Temperature"
+                text: "Average_Temp"
                 font_size: "15sp"
 
             Label:
-                text: "Internal_Temperature"
+                text: "Internal_Temp"
                 font_size: "15sp"
 
 
@@ -138,10 +138,10 @@ WindowManager:
         
         GridLayout:
             size: root.width, root.height
-            pos_hint: {"x": 0.2}
+            pos_hint: {"x": 0.1}
             row_force_default: True
             row_default_height: 80
-            padding: ["50sp", "200sp"]
+            padding: ["50sp", "50sp"]
             cols: 1
             rows: 9
 
@@ -169,11 +169,11 @@ WindowManager:
                 bold: True
 
             Label:
-                text: "Heatsink_Temperature"
+                text: "Heatsink_Temp"
                 font_size: "15sp"
 
             Label:
-                text: "Motor_Temperature"
+                text: "Motor_Temp"
                 font_size: "15sp"
 
 
@@ -196,12 +196,12 @@ WindowManager:
         
         GridLayout:
             size: root.width, root.height
-            pos_hint: {"x": 0.4}
+            pos_hint: {"x": 0.3}
             row_force_default: True
             row_default_height: 80
-            padding: ["50sp", "200sp"]
+            padding: ["50sp", "50sp"]
             cols: 1
-            rows: 2
+            rows: 18
 
 #------------------ MC ERRORFLAGS -------------------#
 
@@ -209,6 +209,43 @@ WindowManager:
                 text: "MC_Error_Flags"
                 font_size: "30sp"
                 bold: True
+
+            Label:
+                text: "Motor_Over_Speed"
+                font_size: "15sp"
+
+            Label:
+                text: "Desaturation_Fault"
+                font_size: "15sp"
+
+            Label:
+                text: "Rail_Under_Voltage"
+                font_size: "15sp"
+
+            Label:
+                text: "Config_Read_Error"
+                font_size: "15sp"
+
+            Label:
+                text: "Watchdog_Caused_Last_Reset"
+                font_size: "15sp"
+
+            Label:
+                text: "Bad_Motor_Position_Hall_Sequence"
+                font_size: "15sp"
+
+            Label:
+                text: "DC_Bus_Over_Voltage"
+                font_size: "15sp"
+
+            Label:
+                text: "Software_Over_Current"
+                font_size: "15sp"
+
+            Label:
+                text: "Hardware_Over_Current"
+                font_size: "15sp"
+
 
 
     #------------------ MC LIMITFLAGS -------------------#
@@ -218,9 +255,33 @@ WindowManager:
                 font_size: "30sp"
                 bold: True
 
+            Label:
+                text: "IPM_OR_MOTOR_TEMP"
+                font_size: "15sp"
 
+            Label:
+                text: "Bus_Voltage_Lower_Limit"
+                font_size: "15sp"
 
+            Label:
+                text: "Bus_Voltage_Upper_Limit"
+                font_size: "15sp"
 
+            Label:
+                text: "Bus_Current"
+                font_size: "15sp"
+
+            Label:
+                text: "Velocity"
+                font_size: "15sp"
+
+            Label:
+                text: "Motor_Current"
+                font_size: "15sp"
+
+            Label:
+                text: "Output_Voltage_PWM"
+                font_size: "15sp"
             
             
         
