@@ -129,7 +129,7 @@ class DataDetailsScreen(Screen):
 
         table = MDDataTable(
             size_hint=(0.3, 0.6),
-            pos_hint={"center_x": 0.4, "center_y": 0.5},
+            pos_hint={"center_x": 0.45, "center_y": 0.5},
             use_pagination=True,
             column_data=[
                 ("Time", dp(30)),
@@ -137,8 +137,6 @@ class DataDetailsScreen(Screen):
             ]
         )
         self.add_widget(table)
-
-    
 
 
 
