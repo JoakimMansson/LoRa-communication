@@ -1,4 +1,8 @@
 import os
+import numpy as np
+import pandas as pd
+from Database import sqlConnection as DBsqllite
+
 
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty, NumericProperty, BoundedNumericProperty, StringProperty
@@ -34,43 +38,9 @@ from kivy.metrics import dp
 import matplotlib.pyplot as plt
 
 
+DB = DBsqllite()
 
-
-class MainScreen(Screen):
-    dialog = None
-
-
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        self.USB_connected = "False"
-        self.connection_established = "False"
-
-    def show_lora_status(self):
-        if not self.dialog:
-            self.dialog = MDDialog(
-                title = "LoRa Status",
-                text = "USB-connected: " + self.USB_connected + "\n" + "Connection established: " + self.connection_established,
-                buttons = [
-                    MDFillRoundFlatButton(
-                        text = "OK",
-                        on_release = self.close_lora_status
-                    ),
-                ]
-            )
-
-        self.dialog.open()
-
-    def close_lora_status(self, obj):
-        self.dialog.dismiss()
-
-
-
-class DataDetailsScreen(Screen):
-
-    def __init__(self, **kw):
-        super().__init__(**kw)
-
-        self.encodings = {
+encodings = {
             #BMS_Pack
             10: "PackCurrent",
             11: "PackVoltage",
@@ -88,7 +58,7 @@ class DataDetailsScreen(Screen):
             21: "CellBalancingActive",
             22: "ChangeinterlockFailsafeActive",
             23: "ThermistorB_valueTableInvalid",
-            24: "InputPoweruSupplyFailed",
+            24: "InputPowerSupplyFailed",
             #BMS_Temperatures
             25: "HighestTemperature",
             26: "LowestTemperature",
@@ -118,25 +88,193 @@ class DataDetailsScreen(Screen):
             44: "IPMTemperatureOrMotorTemperature",
             45: "BusVoltageLowerLimit",
             46: "BusVoltageUpperLimit",
-            47: "BusCurrent",
+            47: "BusCurrentLimit",
             48: "Velocity",
             49: "MotorCurrent",
             50: "OutputVoltagePWM"
         }
 
-    def display_data(self, btn_index):
-        print(self.encodings[btn_index])
+
+class MainScreen(Screen):
+    dialog = None
+
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.USB_connected = "False"
+        self.connection_established = "False"
+
+    def on_pre_enter(self):
+        self.values_clock = Clock.schedule_interval(lambda update_values: self.update_data(), 1)
+
+    def on_pre_leave(self):
+        self.values_clock.cancel()
+
+    def update_data(self):
+        for i in range(10, 51):
+            value = DB.execCommmand("SELECT * FROM " + encodings[i] + " ORDER BY ID DESC LIMIT 1")
+            Id = encodings[i][0].lower() + encodings[i][1:]
+            
+            # Change text value
+            if self.within_limits_float(i):
+                
+                if value != None:
+                    #For ID from ex: BusCurrent -> busCurrent
+                    #setattr(self, Id, None)
+                    exec("self."+Id+".text='"+ encodings[i]+ ": " + str(round(value[0][2], 2))+"'")
+
+            #Change color value True(Blue) / False(Red)
+            else:
+                if value[0][2] == 1:
+                    color = (176/255, 18/255, 0/255)
+                    exec("self."+Id+".color= color")
+                else:
+                    color = (0/255, 109/255, 176/255)
+                    exec("self."+Id+".color= color")
+
+                
+
+    def within_limits_float(self, index):
+        if 10 <= index <= 17 or 25 <= index <= 34:
+            return True
+        else:
+            return False
+        
+
+
+    def show_lora_status(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                title = "LoRa Status",
+                text = "USB-connected: " + self.USB_connected + "\n" + "Connection established: " + self.connection_established,
+                buttons = [
+                    MDFillRoundFlatButton(
+                        text = "OK",
+                        on_release = self.close_lora_status
+                    ),
+                ]
+            )
+
+        self.dialog.open()
+
+    def close_lora_status(self, obj):
+        self.dialog.dismiss()
+
+
+
+class DataDetailsScreen(Screen):
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+
+        # A check for absoulte first enter
+        self.first_enter = True
+
+        self.on_first_table = True
+        self.current_keys = [0, 0]
+        
+        # If tables should be displayed in ascending or descending order
+        self.sorted_descending = True
+
+        # If dates should be all-time or only today
+        self.date_range_all_time = True
+
+
+    def on_pre_enter(self):
+        if self.first_enter:
+            self.display_data(10)
+            self.display_data(11)
+            self.first_enter = False
+
+
+
+    def display_data(self, key):
+        if self.on_first_table:
+            self.add_table({"center_x": 0.45, "center_y": 0.5}, key)
+            self.current_keys[0] = key
+            self.on_first_table = False
+
+        else:
+            self.add_table({"center_x": 0.8, "center_y": 0.5}, key)
+            self.current_keys[1] = key
+            self.on_first_table = True
+            
+
+
+    def add_table(self, position, key):
+        try:
+            if self.sorted_descending == True:
+                if self.date_range_all_time:
+                    table_data = pd.Index(DB.execCommmand("SELECT * FROM " + encodings[key] + " ORDER BY ID DESC")).values
+                else:
+                    table_data = pd.Index(DB.execCommmand("SELECT * FROM " + encodings[key] + " WHERE TimeData >= date('now', 'localtime') ORDER BY ID DESC")).values
+            else:
+                if self.date_range_all_time:
+                    table_data = pd.Index(DB.execCommmand("SELECT * FROM " + encodings[key] + " ORDER BY ID ASC")).values
+                else:
+                    table_data = pd.Index(DB.execCommmand("SELECT * FROM " + encodings[key] + " WHERE TimeData >= date('now', 'localtime') ORDER BY ID ASC")).values
+        except Exception as e:
+            table_data = ()
 
         table = MDDataTable(
             size_hint=(0.3, 0.6),
-            pos_hint={"center_x": 0.45, "center_y": 0.5},
+            pos_hint=position,
             use_pagination=True,
+            rows_num=10,
             column_data=[
-                ("Time", dp(30)),
-                (self.encodings[btn_index], dp(60))
-            ]
+                ("ID", dp(20)),
+                ("Time", dp(20)),
+                (encodings[key], dp(60))
+            ],
+            row_data=table_data
         )
+        
         self.add_widget(table)
+        self.dismiss_latest_table()
+
+
+    def dismiss_latest_table(self):
+        if len(self.children) > 3:
+            self.remove_widget(self.children[2])
+
+    def update_tables(self):
+        self.remove_widget(self.children[1])
+        self.remove_widget(self.children[0])
+        
+        self.add_table({"center_x": 0.45, "center_y": 0.5}, self.current_keys[0])
+        self.add_table({"center_x": 0.8, "center_y": 0.5}, self.current_keys[1])
+
+
+    def switch_sort(self):
+        if self.sorted_descending:
+            self.sorted_descending = False
+            self.sortedBTN.text = "Sorted: ascending"
+            self.sortedBTN.icon = "arrow-up"
+        else:
+            self.sorted_descending = True
+            self.sortedBTN.text = "Sorted: decending"
+            self.sortedBTN.icon = "arrow-down"
+        
+        self.update_tables()
+
+
+    def switch_date_range(self):
+        if self.date_range_all_time:
+            self.date_range_all_time = False
+            self.dateBTN.text = "Date range: today"
+            self.dateBTN.icon = "tally-mark-1"
+        else:
+            self.date_range_all_time = True
+            self.dateBTN.text = "Date range: all-time"
+            self.dateBTN.icon = "all-inclusive"
+
+        self.update_tables()
+
+        
+
+
+
+
 
 
 
