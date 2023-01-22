@@ -272,16 +272,10 @@ class DataDetailsScreen(Screen):
 
         
 
-
-
-
-
-
-
 class WindowManager(ScreenManager):
     pass
 
-class AlarmApp(MDApp):
+class LoRaGUI(MDApp):
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
@@ -290,8 +284,5 @@ class AlarmApp(MDApp):
         return kv
 
 
-
-
-
 if __name__ == "__main__":
-    AlarmApp().run()
+    LoRaGUI().run()
