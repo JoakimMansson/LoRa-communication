@@ -4,57 +4,58 @@ import re
 port_name = "COM10"
 
 encodings = {
-    #BMS_Pack
-    10: "PackCurrent",
-    11: "PackVoltage",
-    12: "PackStateOfHealth",
-    13: "AvgPackCurrent",
-    #BMS_Cell
-    14: "LowCellVoltage",
-    15: "HighCellVoltage",
-    16: "AvgCellVoltage",
-    #BMS_Failsafes
-    17: "VoltageFailsafeActive",
-    18: "CurrentFailsafeActive",
-    19: "RelayFailsafeActive",
-    20: "CellBalancingActive",
-    21: "ChangeinterlockFailsafeActive",
-    22: "ThermistorB_valueTableInvalid",
-    23: "InputPoweruSupplyFailed",
-    #BMS_Temperatures
-    24: "HighestTemperature",
-    25: "LowestTemperature",
-    26: "AverageTemperature",
-    27: "InternalTemperature",
+            #BMS_Pack
+            10: "PackCurrent",
+            11: "PackVoltage",
+            12: "PackStateOfHealth",
+            13: "AvgPackCurrent",
+            14: "PackStateOfHealth",
+            #BMS_Cell
+            15: "LowCellVoltage",
+            16: "HighCellVoltage",
+            17: "AvgCellVoltage",
+            #BMS_Failsafes
+            18: "VoltageFailsafeActive",
+            19: "CurrentFailsafeActive",
+            20: "RelayFailsafeActive",
+            21: "CellBalancingActive",
+            22: "ChangeinterlockFailsafeActive",
+            23: "ThermistorB_valueTableInvalid",
+            24: "InputPoweruSupplyFailed",
+            #BMS_Temperatures
+            25: "HighestTemperature",
+            26: "LowestTemperature",
+            27: "AverageTemperature",
+            28: "InternalTemperature",
 
-    #MC_Temperatures
-    28: "HeatsinkTemperature",
-    29: "MotorTemperature",
-    #MC_CurrentVoltage
-    30: "BusCurrent",
-    31: "BusVoltage",
-    #MC_Velocity
-    32: "MotorVelocity",
-    33: "VehicleVelocity",
-    #MC_ErrorFlags
-    34: "MotorOverSpeed",
-    35: "DesaturationFault",
-    36: "RailUnderVoltage",
-    37: "ConfigReadError",
-    38: "WatchdogCausedLastReset",
-    39: "BadMotorPositionHallSequence",
-    40: "DCBusOverVoltage",
-    41: "SoftwareOverCurrent",
-    42: "HardwareOverCurrent",
-    #MC_LimitFlags
-    43: "IPMTemperatureOrMotorTemperature",
-    44: "BusVoltageLowerLimit",
-    45: "BusVoltageUpperLimit",
-    46: "BusCurrent",
-    47: "Velocity",
-    48: "MotorCurrent",
-    49: "OutputVoltagePWM"
-}
+            #MC_Temperatures
+            29: "HeatsinkTemperature",
+            30: "MotorTemperature",
+            #MC_CurrentVoltage
+            31: "BusCurrent",
+            32: "BusVoltage",
+            #MC_Velocity
+            33: "MotorVelocity",
+            34: "VehicleVelocity",
+            #MC_ErrorFlags
+            35: "MotorOverSpeed",
+            36: "DesaturationFault",
+            37: "RailUnderVoltage",
+            38: "ConfigReadError",
+            39: "WatchdogCausedLastReset",
+            40: "BadMotorPositionHallSequence",
+            41: "DCBusOverVoltage",
+            42: "SoftwareOverCurrent",
+            43: "HardwareOverCurrent",
+            #MC_LimitFlags
+            44: "IPMTemperatureOrMotorTemperature",
+            45: "BusVoltageLowerLimit",
+            46: "BusVoltageUpperLimit",
+            47: "BusCurrent",
+            48: "Velocity",
+            49: "MotorCurrent",
+            50: "OutputVoltagePWM"
+        }
 
 ser = serial.Serial(
     port = port_name,
