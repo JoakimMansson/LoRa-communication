@@ -61,13 +61,21 @@ void setup()
   //DebugSerial.print("Sending packets status: " + RAKLoRa.rk_sendP2PData("100", "1000", "1337"));
 }
 
-int i = 10;
 void loop() 
 {
-  digitalWrite(SERIAL_AVAILABLE_PIN, HIGH);
-  while(!Serial.available());
-  String status = RAKLoRa.rk_sendP2PData("1", "1", String(Serial.read()));
-  digitalWrite(SERIAL_AVAILABLE_PIN, LOW);
+  String status;
+  if(Serial.available())
+  {
+    char data[RAKSerial.peek()];
+    RAKSerial.readBytesUntil("\n", data, sizeof(data));
+    status = RAKLoRa.rk_sendP2PData("1", "1", String(data));
+    digitalWrite(SERIAL_AVAILABLE_PIN, LOW);
+  }
+  else
+  {
+    digitalWrite(SERIAL_AVAILABLE_PIN, HIGH);
+  }
+  
   //DebugSerial.println("Sending packets status: " + status);
 
   if(!status.compareTo("ERROR-1"))
@@ -79,8 +87,7 @@ void loop()
     digitalWrite(ERROR_PIN, LOW);
   }
 
-  //i++;
-  delay(200);
+  delay(100);
 }
 
 

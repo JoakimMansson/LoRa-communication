@@ -61,11 +61,12 @@ void setup()
 
 void loop() 
 {
-  if(RAKSerial.available() > 0)
+  if(RAKSerial.available())
   { 
 
-    char data[RAKSerial.peek()];
-    RAKSerial.readBytesUntil("\n", data, sizeof(data));
+    //char data[RAKSerial.peek()];
+    //RAKSerial.readBytesUntil("\n", data, sizeof(data));
+    String data = String(RAKSerial.read());
     //DebugSerial.println(data);
     Serial.println(data);
     digitalWrite(RECEIVED_PIN, HIGH);
