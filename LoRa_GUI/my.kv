@@ -8,6 +8,8 @@ WindowManager:
     name: "Main"
     size: root.width, root.height
 
+    lightMode: LightMode
+
     packCurrent: PackCurrent
     packVoltage: PackVoltage
     avgPackCurrent: AvgPackCurrent
@@ -52,22 +54,33 @@ WindowManager:
 
 
     MDFloatLayout:
-        md_bg_color: (0,0,0,1)
+        #md_bg_color: (0,0,0,1)
+
+        MDRoundFlatIconButton:
+            id: LightMode
+            text: "Darkmode"
+            icon: "weather-night"
+            #icon_color: "white"
+            text_color: "white"
+            line_color: (0/255, 109/255, 176/255)
+            size_hint: (0.1, 0.05)
+            pos_hint: {"x": 0.02, "y":0.92}
+            on_release: root.switch_mode()
 
         GridLayout:
             size: root.width, root.height
             pos_hint: {"x": -0.36, "y": 0}
             row_force_default: True
-            row_default_height: 80
+            row_default_height: 40
             padding: ["50sp", "50sp"]
             cols: 1
             rows: 10
 
 #------------------ BMS PACK -------------------#
 
-            Label:
+            MDLabel:
                 text: "BMS_Pack"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
             
 
@@ -100,7 +113,7 @@ WindowManager:
 
             Label:
                 text: "BMS_Cell"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -124,7 +137,7 @@ WindowManager:
             size: root.width, root.height
             pos_hint: {"x": -0.18, "y": 0}
             row_force_default: True
-            row_default_height: 70
+            row_default_height: 40
             padding: ["50sp", "50sp"]
             cols: 1
             rows: 13
@@ -133,7 +146,7 @@ WindowManager:
 
             Label:
                 text: "BMS_Failsafes"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -176,7 +189,7 @@ WindowManager:
 
             Label:
                 text: "BMS_Temperatures"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -206,7 +219,7 @@ WindowManager:
             size: root.width, root.height
             pos_hint: {"x": 0, "y": 0}
             row_force_default: True
-            row_default_height: 80
+            row_default_height: 40
             padding: ["50sp", "50sp"]
             cols: 1
             rows: 9
@@ -215,7 +228,7 @@ WindowManager:
 
             Label:
                 text: "MC_Current_Voltage"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -233,7 +246,7 @@ WindowManager:
 
             Label:
                 text: "MC_Temperatures"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -251,7 +264,7 @@ WindowManager:
 
             Label:
                 text: "MC_Velocity"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -270,7 +283,7 @@ WindowManager:
             size: root.width, root.height
             pos_hint: {"x": 0.18, "y": 0}
             row_force_default: True
-            row_default_height: 80
+            row_default_height: 40
             padding: ["50sp", "50sp"]
             cols: 1
             rows: 18
@@ -279,7 +292,7 @@ WindowManager:
 
             Label:
                 text: "MC_Error_Flags"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -333,7 +346,7 @@ WindowManager:
             size: root.width, root.height
             pos_hint: {"x": 0.36, "y": 0}
             row_force_default: True
-            row_default_height: 80
+            row_default_height: 40
             padding: ["50sp", "50sp"]
             cols: 1
             rows: 18
@@ -342,7 +355,7 @@ WindowManager:
 
             Label:
                 text: "MC_Limit_Flags"
-                font_size: "30sp"
+                font_size: "20sp"
                 bold: True
 
             Label:
@@ -381,8 +394,6 @@ WindowManager:
                 font_size: "15sp"
         
 
-
-
         Image:
             source: "HUST_logo.png"
             size_hint: (1.0, 0.17)
@@ -392,8 +403,9 @@ WindowManager:
         MDRoundFlatIconButton:
             text: "LoRa status"
             icon: "satellite-uplink"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
+            line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
             pos_hint: {"x": 0.02, "y":0.02}
             on_release: root.show_lora_status()
@@ -402,8 +414,9 @@ WindowManager:
         MDRoundFlatIconButton:
             text: "Data details"
             icon: "database"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
+            line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
             pos_hint: {"x": 0.14, "y":0.02}
             on_release: 
@@ -413,18 +426,18 @@ WindowManager:
         MDRoundFlatIconButton:
             text: "Good"
             icon: "circle"
-            icon_color: (0/255, 109/255, 176/255, 1)
+            #icon_color: (0/255, 109/255, 176/255, 1)
             text_color: "white"
-            line_color: (0,0,0,1)
+            line_color: (0,0,0,0)
             size_hint: (0.1, 0.05)
             pos_hint: {"x": 0.90, "y":0.06}
         
         MDRoundFlatIconButton:
             text: "Bad"
             icon: "circle"
-            icon_color: (176/255, 18/255, 0/255, 1)
+            #icon_color: (176/255, 18/255, 0/255, 1)
             text_color: "white"
-            line_color: (0,0,0,1)
+            line_color: (0,0,0,0)
             size_hint: (0.1, 0.05)
             pos_hint: {"x": 0.90, "y":0.02}
 
@@ -438,15 +451,16 @@ WindowManager:
     dateBTN: DateRange
 
     MDFloatLayout:
-        md_bg_color: (0,0,0,1)
+        #md_bg_color: (0,0,0,1)
 
 
 
         MDRoundFlatIconButton:
             text: "All data"
             icon: "arrow-left-top"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
+            line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
             pos_hint: {"x": 0.04, "y":0.02}
             on_release: 
@@ -457,20 +471,22 @@ WindowManager:
             id: DateRange
             text: "Date range: all-time"
             icon: "all-inclusive"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
+            line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
-            pos_hint: {"x": 0.50, "y":0.85}
+            pos_hint: {"x": 0.47, "y":0.85}
             on_release: root.switch_date_range()
 
         MDRoundFlatIconButton:
             id: SortOrder
             text: "Sorted: descending"
             icon: "arrow-down"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
+            line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
-            pos_hint: {"x": 0.61, "y":0.85}
+            pos_hint: {"x": 0.63, "y":0.85}
             on_release: root.switch_sort()
 
         Image:

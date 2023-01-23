@@ -95,6 +95,8 @@ encodings = {
         }
 
 
+current_theme_light = False
+
 class MainScreen(Screen):
     dialog = None
 
@@ -104,11 +106,41 @@ class MainScreen(Screen):
         self.USB_connected = "False"
         self.connection_established = "False"
 
+
     def on_pre_enter(self):
         self.values_clock = Clock.schedule_interval(lambda update_values: self.update_data(), 1)
 
     def on_pre_leave(self):
         self.values_clock.cancel()
+
+
+    # For switching between light- and dark -mode
+    def switch_mode(self):
+        global current_theme_light
+        if current_theme_light:
+            current_theme_light = False
+            self.lightMode.icon = "weather-night"
+            self.lightMode.text = "Darkmode"
+        else:
+            current_theme_light = True
+            self.lightMode.icon = "weather-sunny"
+            self.lightMode.icon = "Lightmode"
+
+        self.update_color_theme()
+
+    def update_color_theme(self):
+        if current_theme_light:
+            color = (0,0,0)
+        else: 
+            color = (1,1,1)
+
+        for i in range(10, 35):
+            # 17 < i < 25 are not affected by darkmode/lightmode
+            if i == 18: i = 25
+
+            id = encodings[i][0].lower() + encodings[i][1:]
+            exec("self." + id + ".color =" + str(color))
+
 
     def update_data(self):
         for i in range(10, 51):
@@ -278,11 +310,24 @@ class WindowManager(ScreenManager):
 class LoRaGUI(MDApp):
 
     def build(self):
+        self.theme_cls.theme_style_switch_animation = True
+        self.theme_cls.primary_palette = "Red"
         self.theme_cls.theme_style = "Dark"
+        
         kv = Builder.load_file(os.path.realpath("my.kv"))
-        Window.size = (1920, 1080)
+        Window.size = (1200, 600)
         return kv
 
+    def on_start(self):
+        Clock.schedule_interval(lambda check_theme: self.change_theme(), 0.5)
+
+    def change_theme(self):
+        if current_theme_light:
+            self.theme_cls.primary_palette = "BlueGray"
+            self.theme_cls.theme_style = "Light"
+        else:
+            self.theme_cls.primary_palette = "Red"
+            self.theme_cls.theme_style = "Dark"
 
 if __name__ == "__main__":
     LoRaGUI().run()
