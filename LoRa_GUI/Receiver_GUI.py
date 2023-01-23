@@ -115,19 +115,25 @@ class MainScreen(Screen):
 
 
     # For switching between light- and dark -mode
-    def switch_mode(self):
+    def switch_theme_mode(self):
         global current_theme_light
         if current_theme_light:
             current_theme_light = False
             self.lightMode.icon = "weather-night"
             self.lightMode.text = "Darkmode"
+            self.lightMode.text_color = "white"
+            self.lightMode.icon_color = "white"
         else:
             current_theme_light = True
             self.lightMode.icon = "weather-sunny"
-            self.lightMode.icon = "Lightmode"
+            self.lightMode.text = "Lightmode"
+            self.lightMode.text_color = "black"
+            self.lightMode.icon_color = "black"
 
         self.update_color_theme()
 
+    # Updates buttons and labels to
+    # corresponding theme light/dark
     def update_color_theme(self):
         if current_theme_light:
             color = (0,0,0)
@@ -136,10 +142,30 @@ class MainScreen(Screen):
 
         for i in range(10, 35):
             # 17 < i < 25 are not affected by darkmode/lightmode
-            if i == 18: i = 25
+            if 17 < i < 25: 
+                pass
+            else:
+                id = encodings[i][0].lower() + encodings[i][1:]
+                exec("self." + id + ".color =" + str(color))
 
-            id = encodings[i][0].lower() + encodings[i][1:]
-            exec("self." + id + ".color =" + str(color))
+        
+        # BUTTONS
+        self.loraStatusBTN.text_color,self.loraStatusBTN.icon_color  = color, color
+        self.dataDetailsBTN.text_color, self.dataDetailsBTN.icon_color = color, color
+        self.goodLabel.text_color = color
+        self.badLabel.text_color = color
+
+        # LABELS
+        self.bmsPack.color = color
+        self.bmsCell.color = color
+        self.bmsFailsafes.color = color
+        self.bmsTemperatures.color = color
+
+        self.mcCurrentVoltage.color = color
+        self.mcTemperatures.color = color
+        self.mcVelocity.color = color
+        self.mcErrorFlags.color = color
+        self.mcLimitFlags.color = color
 
 
     def update_data(self):
@@ -213,10 +239,24 @@ class DataDetailsScreen(Screen):
 
 
     def on_pre_enter(self):
+        # Checks if its the first time entering
         if self.first_enter:
             self.display_data(10)
             self.display_data(11)
             self.first_enter = False
+
+        # Checks if theme is light or darkmode
+        color_light = (0,0,0)
+        color_dark = (1,1,1)
+        for i in range(10,51):
+            id = encodings[i][0].lower() + encodings[i][1:]
+            if current_theme_light:
+                exec("self." + id + ".text_color =" + str(color_light))
+                exec("self." + id + ".line_color =" + str(color_light))
+            else:
+                exec("self." + id + ".text_color =" + str(color_dark))
+                exec("self." + id + ".line_color =" + str(color_dark))
+
 
 
 
@@ -311,7 +351,6 @@ class LoRaGUI(MDApp):
 
     def build(self):
         self.theme_cls.theme_style_switch_animation = True
-        self.theme_cls.primary_palette = "Red"
         self.theme_cls.theme_style = "Dark"
         
         kv = Builder.load_file(os.path.realpath("my.kv"))
@@ -321,12 +360,11 @@ class LoRaGUI(MDApp):
     def on_start(self):
         Clock.schedule_interval(lambda check_theme: self.change_theme(), 0.5)
 
+    # Switches themes of GUI light <-> dark
     def change_theme(self):
         if current_theme_light:
-            self.theme_cls.primary_palette = "BlueGray"
             self.theme_cls.theme_style = "Light"
         else:
-            self.theme_cls.primary_palette = "Red"
             self.theme_cls.theme_style = "Dark"
 
 if __name__ == "__main__":
