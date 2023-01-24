@@ -122,13 +122,13 @@ class MainScreen(Screen):
             self.lightMode.icon = "weather-night"
             self.lightMode.text = "Darkmode"
             self.lightMode.text_color = "white"
-            self.lightMode.icon_color = "white"
+           # self.lightMode.icon_color = "white"
         else:
             current_theme_light = True
             self.lightMode.icon = "weather-sunny"
             self.lightMode.text = "Lightmode"
             self.lightMode.text_color = "black"
-            self.lightMode.icon_color = "black"
+            #self.lightMode.icon_color = "black"
 
         self.update_color_theme()
 
@@ -150,8 +150,8 @@ class MainScreen(Screen):
 
         
         # BUTTONS
-        self.loraStatusBTN.text_color,self.loraStatusBTN.icon_color  = color, color
-        self.dataDetailsBTN.text_color, self.dataDetailsBTN.icon_color = color, color
+        self.loraStatusBTN.text_color  = color
+        self.dataDetailsBTN.text_color = color
         self.goodLabel.text_color = color
         self.badLabel.text_color = color
 
@@ -218,7 +218,7 @@ class MainScreen(Screen):
     def close_lora_status(self, obj):
         self.dialog.dismiss()
 
-
+#----------------------------------------------------DATA DETAILS SCREEN--------------------------------#
 
 class DataDetailsScreen(Screen):
 
@@ -246,16 +246,26 @@ class DataDetailsScreen(Screen):
             self.first_enter = False
 
         # Checks if theme is light or darkmode
-        color_light = (0,0,0)
-        color_dark = (1,1,1)
+        if current_theme_light:
+            color = (0,0,0)
+        else:
+            color = (1,1,1)
+
         for i in range(10,51):
             id = encodings[i][0].lower() + encodings[i][1:]
             if current_theme_light:
-                exec("self." + id + ".text_color =" + str(color_light))
-                exec("self." + id + ".line_color =" + str(color_light))
-            else:
-                exec("self." + id + ".text_color =" + str(color_dark))
-                exec("self." + id + ".line_color =" + str(color_dark))
+                exec("self." + id + ".text_color =" + str(color))
+                exec("self." + id + ".line_color =" + str(color))
+
+        # Edge cases for extra button
+        # OBS. ADD NEW BUTTONS HERE FOR LIGHT/DARK COMPATABILITY
+        self.allDataBTN.text_color = color
+        self.dateRangeBTN.text_color = color
+        self.sortBTN.text_color = color
+
+        # Updating tables since color will be weird otherwise
+        #self.update_tables() ->>> FIX THIS!
+
 
 
 

@@ -430,7 +430,7 @@ WindowManager:
             id: LoraStatusBTN
             text: "LoRa status"
             icon: "satellite-uplink"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
             line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
@@ -442,7 +442,7 @@ WindowManager:
             id: DataDetailsBTN
             text: "Data details"
             icon: "database"
-            icon_color: "white"
+            #icon_color: "white"
             text_color: "white"
             line_color: (0/255, 109/255, 176/255)
             size_hint: (0.1, 0.05)
@@ -477,8 +477,9 @@ WindowManager:
     name: "DataDetails"
     size: root.width, root.height
 
-    sortedBTN: SortOrder
-    dateBTN: DateRange
+    allDataBTN: allDataBTN
+    dateRangeBTN: dateRangeBTN
+    sortBTN: sortBTN
 
     packCurrent: PackCurrent
     packVoltage: PackVoltage
@@ -527,6 +528,7 @@ WindowManager:
 
 
         MDRoundFlatIconButton:
+            id: allDataBTN
             text: "All data"
             icon: "arrow-left-top"
             #icon_color: "white"
@@ -539,7 +541,7 @@ WindowManager:
                 root.manager.current = "Main"
 
         MDRoundFlatIconButton:
-            id: DateRange
+            id: dateRangeBTN
             text: "Date range: all-time"
             icon: "all-inclusive"
             #icon_color: "white"
@@ -550,7 +552,7 @@ WindowManager:
             on_release: root.switch_date_range()
 
         MDRoundFlatIconButton:
-            id: SortOrder
+            id: sortBTN
             text: "Sorted: descending"
             icon: "arrow-down"
             #icon_color: "white"
