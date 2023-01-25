@@ -237,6 +237,11 @@ class DataDetailsScreen(Screen):
         # If dates should be all-time or only today
         self.date_range_all_time = True
 
+        # If theme has changed since last enter
+        # for improved performance
+
+        self.last_theme = current_theme_light
+
 
     def on_pre_enter(self):
         # Checks if its the first time entering
@@ -245,17 +250,23 @@ class DataDetailsScreen(Screen):
             self.display_data(11)
             self.first_enter = False
 
-        # Checks if theme is light or darkmode
+        # Checks if last theme since entering is new or the same
+        if self.last_theme != current_theme_light:
+            self.update_theme()
+            self.last_theme = current_theme_light
+
+
+
+    def update_theme(self):
         if current_theme_light:
-            color = (0,0,0)
+            color = (0,0,0,1)
         else:
-            color = (1,1,1)
+            color = (1,1,1,1)
 
         for i in range(10,51):
             id = encodings[i][0].lower() + encodings[i][1:]
-            if current_theme_light:
-                exec("self." + id + ".text_color =" + str(color))
-                exec("self." + id + ".line_color =" + str(color))
+            exec("self." + id + ".text_color =" + str(color))
+            exec("self." + id + ".line_color =" + str(color))
 
         # Edge cases for extra button
         # OBS. ADD NEW BUTTONS HERE FOR LIGHT/DARK COMPATABILITY
@@ -264,10 +275,7 @@ class DataDetailsScreen(Screen):
         self.sortBTN.text_color = color
 
         # Updating tables since color will be weird otherwise
-        #self.update_tables() ->>> FIX THIS!
-
-
-
+        self.update_tables()
 
 
     def display_data(self, key):
@@ -330,12 +338,12 @@ class DataDetailsScreen(Screen):
     def switch_sort(self):
         if self.sorted_descending:
             self.sorted_descending = False
-            self.sortedBTN.text = "Sorted: ascending"
-            self.sortedBTN.icon = "arrow-up"
+            self.sortBTN.text = "Sorted: ascending"
+            self.sortBTN.icon = "arrow-up"
         else:
             self.sorted_descending = True
-            self.sortedBTN.text = "Sorted: decending"
-            self.sortedBTN.icon = "arrow-down"
+            self.sortBTN.text = "Sorted: decending"
+            self.sortBTN.icon = "arrow-down"
         
         self.update_tables()
 
@@ -343,12 +351,12 @@ class DataDetailsScreen(Screen):
     def switch_date_range(self):
         if self.date_range_all_time:
             self.date_range_all_time = False
-            self.dateBTN.text = "Date range: today"
-            self.dateBTN.icon = "tally-mark-1"
+            self.dateRangeBTN.text = "Date range: today"
+            self.dateRangeBTN.icon = "tally-mark-1"
         else:
             self.date_range_all_time = True
-            self.dateBTN.text = "Date range: all-time"
-            self.dateBTN.icon = "all-inclusive"
+            self.dateRangeBTN.text = "Date range: all-time"
+            self.dateRangeBTN.icon = "all-inclusive"
 
         self.update_tables()
 
