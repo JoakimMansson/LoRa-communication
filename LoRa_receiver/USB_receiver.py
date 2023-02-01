@@ -1,5 +1,7 @@
 import serial
 import re
+import win32com.client
+
 
 port_name = "COM10"
 

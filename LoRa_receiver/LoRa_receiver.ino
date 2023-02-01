@@ -44,7 +44,7 @@ void setup()
 
   /*   Workmode 0 = LoRaWAN, 1 = P2P    */
   DebugSerial.println("Initializing workmode");
-
+ 
   RAKLoRa.rk_setWorkingMode(1); //Sets work mode to P2P
   DebugSerial.println("Current mode: " + RAKLoRa.rk_getCurrentMode());
   delay(200);
@@ -61,19 +61,47 @@ void setup()
 
 void loop() 
 {
-  if(RAKSerial.available())
-  { 
 
-    //char data[RAKSerial.peek()];
-    //RAKSerial.readBytesUntil("\n", data, sizeof(data));
-    String data = String(RAKSerial.read());
-    //DebugSerial.println(data);
+  if(RAKSerial.available())
+  {
+    String data = "Data: ";
+    data += String(RAKSerial.read());
     Serial.println(data);
     digitalWrite(RECEIVED_PIN, HIGH);
+  }
+  digitalWrite(RECEIVED_PIN, LOW);
+
+  /*
+  String data;
+  if(RAKSerial.available())
+  {
+    Serial.println("READING");
+    digitalWrite(RECEIVED_PIN, HIGH);
+    data = String(RAKSerial.readString());
   }
   else
   {
     digitalWrite(RECEIVED_PIN, LOW);
   }
+
+  
+  
+  //delay(1000);
+
+  
+  if(RAKSerial.available())
+  { 
+    //char data[RAKSerial.peek()];
+    //RAKSerial.readBytesUntil("\n", data, sizeof(data));
+    String data = String(RAKSerial.read());
+    //DebugSerial.println(data);
+    Serial.println(data);
+    
+  }
+  else
+  {
+    digitalWrite(RECEIVED_PIN, LOW);
+  }
+  */
 }
 
