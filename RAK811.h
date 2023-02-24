@@ -167,7 +167,7 @@ class RAK811
   
 
 
-  String rk_sendP2PData(String nrPackets, String timeInterval, String DATAHex);
+  String rk_sendP2PData(int nrPackets, String timeInterval, char* DATAHex);
 
  /*
   * Set LoRaP2P Rx continues,module will receive packets with rfconfig until receive the rk_stopRecvP2PData command or rk_reset.
@@ -215,7 +215,7 @@ class RAK811
   * Stop_bits : Stop bit.(0,1)  0:Stop bit length is 1 bit.  1:Stop bit length is 2 bit.
   * Flow_ctrl : Flow Control.(0,1)   0:disable flow control.  1:enable flow control.
   */
-  bool rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits, int Flow_ctrl);
+  String rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits, int Flow_ctrl);
 
  /*
   * Send a raw command to the RAK811 module.

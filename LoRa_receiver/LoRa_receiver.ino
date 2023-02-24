@@ -1,7 +1,12 @@
 #include "SoftwareSerial.h"
-#include "string.h"
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+
+// LAPTOP
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+
+// STATIONARY
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 
 #define TXpin 11 
@@ -40,6 +45,9 @@ void setup()
   DebugSerial.println(RAKLoRa.rk_getBand());
   delay(200);
 
+
+  //RAKLoRa.rk_reset(0);
+
   DebugSerial.println("Current version: " + RAKLoRa.rk_currentVersion());
 
   /*   Workmode 0 = LoRaWAN, 1 = P2P    */
@@ -52,56 +60,46 @@ void setup()
 
 
   DebugSerial.println("Initializing p2p");
-  String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "10", "0", "1", "8", "14");
+  String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "12", "0", "1", "30", "14");
   DebugSerial.println("P2P initialized: " + P2pInitialized);
 
   
-  DebugSerial.print("Receiving packets status: " + RAKLoRa.rk_recvP2PData(1));
+  DebugSerial.println("Receiving packets status: " + RAKLoRa.rk_recvP2PData(1));
+
+  //String setUART = RAKLoRa.rk_setUARTConfig(9600, 8, 0, 0, 0);
+  //DebugSerial.println("UART conf. successful: " + String(setUART));
 }
 
 void loop() 
 {
 
-  if(RAKSerial.available())
-  {
-    String data = "Data: ";
-    data += String(RAKSerial.read());
-    Serial.println(data);
-    digitalWrite(RECEIVED_PIN, HIGH);
-  }
-  digitalWrite(RECEIVED_PIN, LOW);
 
-  /*
-  String data;
   if(RAKSerial.available())
   {
-    Serial.println("READING");
-    digitalWrite(RECEIVED_PIN, HIGH);
-    data = String(RAKSerial.readString());
-  }
-  else
-  {
+    String filtered_data = "";
+    String data = RAKSerial.readString();
+    RAKSerial.flush();
+
+    // Filters data "at+recv=0,0,-73,24,2,1029" -> filtered_data "1029"
+    for(int i = data.length()-1; i >= 0; i--)
+    {
+      String substring = data.substring(i-1,i);
+
+      if(substring.equals(","))
+      {
+        break;
+      }
+      else
+      {
+        filtered_data = substring + filtered_data;
+      }
+    }
+   // Serial.println(data);
+    // Print filered_data which can be read through Serial (UART)
+    Serial.println(filtered_data);
     digitalWrite(RECEIVED_PIN, LOW);
   }
-
-  
-  
-  //delay(1000);
-
-  
-  if(RAKSerial.available())
-  { 
-    //char data[RAKSerial.peek()];
-    //RAKSerial.readBytesUntil("\n", data, sizeof(data));
-    String data = String(RAKSerial.read());
-    //DebugSerial.println(data);
-    Serial.println(data);
-    
-  }
-  else
-  {
-    digitalWrite(RECEIVED_PIN, LOW);
-  }
-  */
+  digitalWrite(RECEIVED_PIN, HIGH);
+  //digitalWrite(RECEIVED_PIN, LOW);
 }
 

@@ -1,7 +1,12 @@
 #include "SoftwareSerial.h"
-#include "string.h"
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+
+// LAPTOP
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+
+// STATIONARY
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 
 #define TXpin 11 
@@ -42,6 +47,8 @@ void setup()
   DebugSerial.println(RAKLoRa.rk_getBand());
   delay(200);
 
+ // RAKLoRa.rk_reset(0);
+
   DebugSerial.println("Current version: " + RAKLoRa.rk_currentVersion());
 
   /*   Workmode 0 = LoRaWAN, 1 = P2P    */
@@ -54,8 +61,11 @@ void setup()
 
 
   DebugSerial.println("Initializing p2p");
-  String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "10", "0", "1", "8", "14");
+  String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "12", "0", "1", "30", "14");
   DebugSerial.println("P2P initialized: " + P2pInitialized);
+
+  //String setUART = RAKLoRa.rk_setUARTConfig(9600, 8, 0, 0, 0);
+  //DebugSerial.println("UART conf. successful: " + String(setUART));
 
 
   //DebugSerial.print("Sending packets status: " + RAKLoRa.rk_sendP2PData("100", "1000", "1337"));
@@ -64,7 +74,8 @@ void setup()
 void loop() 
 {
   String status;
-  status = RAKLoRa.rk_sendP2PData("1", "1", String(1));
+  char data[] = "1000";
+  status = RAKLoRa.rk_sendP2PData(1, "10", data);
   Serial.println(status);
   
   if(status.compareTo("ERROR-1"))

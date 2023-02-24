@@ -291,10 +291,10 @@ String RAK811::rk_recvP2PData(int report_en)
   */
 }
 
-String RAK811::rk_sendP2PData(String nrPackets, String timeInterval, String DATAHex)
+String RAK811::rk_sendP2PData(int nrPackets, String timeInterval, char* DATAHex)
 {
   String command = "";
-  command = "at+txc=" + nrPackets + "," + timeInterval + "," + DATAHex;
+  command = "at+txc=" + (String)nrPackets + "," + timeInterval + "," + DATAHex;
 //  Serial.println(command);
   
   String ret = sendRawCommand(command);
@@ -357,20 +357,13 @@ bool RAK811::rk_cleanStatusStatistics(void)
   }
 }
 
-bool RAK811::rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits, int Flow_ctrl)
+String RAK811::rk_setUARTConfig(int Baud, int Data_bits, int Parity, int Stop_bits, int Flow_ctrl)
 {
   String command = "";
   command = "at+uart=" + (String)Baud + "," + Data_bits + "," + Parity + "," + Stop_bits + "," + Flow_ctrl;
 //  Serial.println(command);
   String ret = sendRawCommand(command);
-  if (ret.startsWith("OK"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return ret;
 }
 
 String RAK811::sendRawCommand(String command)
