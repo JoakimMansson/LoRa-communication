@@ -2,6 +2,8 @@ import serial
 from serial.tools import list_ports
 import time
 
+from LoRa_Converter import LoRaConverter
+
 
 
 class USB():
@@ -39,9 +41,9 @@ class USB():
         data = str(self.ser.readline())
 
         # Remove all non-digits, ex b'1029\r\r\n' -> 1029
-        filtered_data = ''.join(filter(lambda x: x.isdigit(), data))
+        #filtered_data = ''.join(filter(lambda x: x.isdigit(), data))
 
-        return filtered_data
+        return data
     
     def send_string(self, data: str):
         data_bytes = data.encode()
@@ -49,8 +51,10 @@ class USB():
     
 
 if __name__ == '__main__':
-    reader = USB("COM6", 9600)
+    reader = USB()
+    converter = LoRaConverter(define_comma_value="99", define_new_value="69")
     while True:
-        reader.send_string("50")
-        time.sleep(1)
+        data = reader.get_DIGITS_USB()
+        if data != "":
+            print(data)#,converter.unparse_value(data))
 

@@ -75,31 +75,18 @@ void loop()
 {
   if(Serial.available())
   {
-    const int MAX_DATA_LEN = 256; // Maximum length of data to be read
+    const int MAX_DATA_LEN = 512; // Maximum length of data to be read
     char data[MAX_DATA_LEN + 1];  // Add one for null termination
 
-    String input = Serial.readString();  // Read the data from the serial port
+    String input = Serial.readStringUntil("\n");  // Read the data from the serial port
     input.toCharArray(data, MAX_DATA_LEN); // Copy the data into the char array
     Serial.flush(); // Flush the serial port
     
     // data must > 10
     String status = RAKLoRa.rk_sendP2PData(1, "10", data);
-    Serial.println(status);
     digitalWrite(ERROR_PIN, HIGH);
-    /*
-    if(status.compareTo("ERROR-1"))
-    {
-      digitalWrite(ERROR_PIN, HIGH);
-    }
-    else
-    {
-      digitalWrite(ERROR_PIN, LOW);
-    }
-    */
   }
-  //digitalWrite(ERROR_PIN, LOW);
 
-  delay(200);
 }
 
 

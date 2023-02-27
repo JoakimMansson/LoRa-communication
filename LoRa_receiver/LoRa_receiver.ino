@@ -1,12 +1,12 @@
 #include "SoftwareSerial.h"
 
 // LAPTOP
-//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
 
 // STATIONARY
-#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
+//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 
 #define TXpin 11 
@@ -70,14 +70,27 @@ void setup()
   //DebugSerial.println("UART conf. successful: " + String(setUART));
 }
 
+String remove_char(String input)
+{
+  String str = input;
+  for(int i = 0; i < str.length(); i++)
+  {
+    unsigned int char_ascii_value = str.charAt(i);
+    if(char_ascii_value >= 65 || char_ascii_value <=  90 || char_ascii_value >= 97 || char_ascii_value <= 122)
+    {
+      str.setCharAt(i, NULL);
+    }
+  }
+
+  return str;
+}
+
 void loop() 
 {
-
-
   if(RAKSerial.available())
   {
     String filtered_data = "";
-    String data = RAKSerial.readString();
+    String data = RAKSerial.readStringUntil("\n");
     RAKSerial.flush();
 
     // Filters data "at+recv=0,0,-73,24,2,1029" -> filtered_data "1029"
@@ -94,9 +107,12 @@ void loop()
         filtered_data = substring + filtered_data;
       }
     }
-   // Serial.println(data);
-    // Print filered_data which can be read through Serial (UART)
+
+    //Serial.println("String: " + filtered_data + ", Contains char: " + String(!contains_char(filtered_data))); 
+    filtered_data = remove_char(filtered_data);
     Serial.println(filtered_data);
+    // Print filered_data which can be read through Serial (UART)
+    
     digitalWrite(RECEIVED_PIN, LOW);
   }
   digitalWrite(RECEIVED_PIN, HIGH);
