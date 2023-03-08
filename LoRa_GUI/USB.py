@@ -11,7 +11,16 @@ class USB():
     def __init__(self, port=None, baud=9600) -> None:
         if port is None:
             port = self.get_available_port()
-        self.ser = serial.Serial(port, baud)
+        
+        if port != None:
+            self.ser = serial.Serial(port, baud)
+        else:
+            self.ser = None
+    
+
+    def get_used_port(self):
+        return self.ser.port
+
     
     def get_available_port(self):
         ports = list(list_ports.comports())
@@ -51,10 +60,10 @@ class USB():
     
 
 if __name__ == '__main__':
-    reader = USB()
+    reader = USB(baud=19200)
     converter = LoRaConverter(define_comma_value="99", define_new_value="69")
     while True:
         data = reader.get_DIGITS_USB()
-        if data != "":
-            print(data)#,converter.unparse_value(data))
+        print(data)
+
 

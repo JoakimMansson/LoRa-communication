@@ -37,6 +37,9 @@ from kivymd.uix.datatables import MDDataTable
 from kivy.metrics import dp
 import matplotlib.pyplot as plt
 
+from USB import USB
+from LoRa_Converter import LoRaConverter
+
 
 DB = DBsqllite()
 
@@ -103,15 +106,32 @@ class MainScreen(Screen):
 
     def __init__(self, **kw):
         super().__init__(**kw)
+        #Used for accessing USB
+        self.USB = USB(baud=9600)
+        print("Using port: " + str(self.USB.get_used_port()))
+
+        # Used to convert string 1[99]0[69]5[99]5[69] -> [1.0, 5.5]
+        self.converter = LoRaConverter(define_comma_value="99", define_new_value="69")
+
         self.USB_connected = "False"
         self.connection_established = "False"
+        
 
 
-    def on_pre_enter(self):
-        self.values_clock = Clock.schedule_interval(lambda update_values: self.update_data(), 1)
+    def on_enter(self, *args):
+        self.values_clock = Clock.schedule_interval(lambda dt:self.update_data(), 0.01)
+        return super().on_enter(*args)
 
-    def on_pre_leave(self):
-        self.values_clock.cancel()
+
+    def update_data(self):
+        data = self.USB.get_DIGITS_USB()
+        print(data)
+        data = LoRaConverter.unparse_value(data)
+
+        data_identifier = data[0] + data[1]
+
+        print(data,data_identifier)
+        
 
 
     # For switching between light- and dark -mode
@@ -122,7 +142,7 @@ class MainScreen(Screen):
             self.lightMode.icon = "weather-night"
             self.lightMode.text = "Darkmode"
             self.lightMode.text_color = "white"
-           # self.lightMode.icon_color = "white"
+            #self.lightMode.icon_color = "white"
         else:
             current_theme_light = True
             self.lightMode.icon = "weather-sunny"
