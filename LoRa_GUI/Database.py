@@ -135,9 +135,9 @@ if __name__ == "__main__":
     #for i in range(10 ,51):
 
     #sql.createTable("InputPowerSupplyFailed", "id INTEGER PRIMARY KEY AUTOINCREMENT" ,"TimeData TIMESTAMP DEFAULT (datetime('now', 'localtime'))","InputPowerSupplyFailed BOOL")
-    obj = sql.execCommmand("SELECT * FROM PackCurrent WHERE TimeData >= date('now', 'localtime') ORDER BY ID DESC")
-    print(obj)
+    #obj = sql.execCommmand("SELECT * FROM PackCurrent WHERE TimeData >= date('now', 'localtime') ORDER BY ID DESC")
+    #print(obj)
         #sql.execCommmand("PRAGMA table_info(PackCurrent)")
-        #sql.execCommmand("INSERT INTO " + encodings[i] + " " + "(" + encodings[i] +  ") " + "VALUES (" + str(True) + ")")
+    sql.execCommmand("INSERT INTO " + "MotorTemperature" + "(MotorTemperature)" + "VALUES (" + str(1337.1337) + ")")
         #pass
     #sql.execCommmand("DROP TABLE InputPowerSupplyFailed")

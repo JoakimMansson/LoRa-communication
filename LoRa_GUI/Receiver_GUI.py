@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
+import re
+import multiprocessing
 from Database import sqlConnection as DBsqllite
 
 
@@ -107,30 +109,41 @@ class MainScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         #Used for accessing USB
-        self.USB = USB(baud=9600)
+        self.USB = USB(port="COM9",baud=19200)
         print("Using port: " + str(self.USB.get_used_port()))
 
         # Used to convert string 1[99]0[69]5[99]5[69] -> [1.0, 5.5]
         self.converter = LoRaConverter(define_comma_value="99", define_new_value="69")
 
-        self.USB_connected = "False"
         self.connection_established = "False"
+        self.read_lora = Clock.schedule_interval(lambda dt: self.read_LoRa_data(), 0.3)
+        self.upd_values = Clock.schedule_interval(lambda dt: self.update_data(), 1)
+
+    def read_LoRa_data(self):
+        data = self.USB.get_DIGITS_USB()
         
 
+        # Keep only digits in data ex: "b'30133769\r\n" -> 30133769
+        data = re.sub("[^0-9]", "", data)
+        if data == "": return # return if regexed data is: ""
 
-    def on_enter(self, *args):
-        self.values_clock = Clock.schedule_interval(lambda dt:self.update_data(), 0.01)
-        return super().on_enter(*args)
-
-
-    def update_data(self):
-        data = self.USB.get_DIGITS_USB()
+        data = self.converter.unparse_value(data) # data: ["data", "data", "data"]
         print(data)
-        data = LoRaConverter.unparse_value(data)
+        for i, data_element in enumerate(data):
+            if len(data_element) < 2: return #Return if data is ex: "1"
+            data_identifier = data_element[0] + data_element[1]
+            data_element = data_element[2:]
 
-        data_identifier = data[0] + data[1]
+            # Sometimes data is ex: "b'StartUP\\r\\n'"
+            if encodings.get(int(data_identifier)) != None:
+                table = encodings[int(data_identifier)]
+                print("Table: ", table, " ,Data: ", data_element)
+                try:
+                    DB.execCommmand("INSERT INTO " + table + "(" + table + ")" + " VALUES (" + str(data_element) + ")")
 
-        print(data,data_identifier)
+                except Exception as e:
+                    print(e)
+                    continue
         
 
 
@@ -190,7 +203,8 @@ class MainScreen(Screen):
 
     def update_data(self):
         for i in range(10, 51):
-            value = DB.execCommmand("SELECT * FROM " + encodings[i] + " ORDER BY ID DESC LIMIT 1")
+            value = DB.execCommmand("SELECT " + encodings[i] + " FROM " + encodings[i] + " WHERE TimeData = (SELECT MAX(TimeData) FROM " +  encodings[i] + ") LIMIT 1")
+            #value = DB.execCommmand("SELECT * FROM " + encodings[i] + " ORDER BY ID DESC LIMIT 1")
             Id = encodings[i][0].lower() + encodings[i][1:]
             
             # Change text value
@@ -199,11 +213,11 @@ class MainScreen(Screen):
                 if value != None:
                     #For ID from ex: BusCurrent -> busCurrent
                     #setattr(self, Id, None)
-                    exec("self."+Id+".text='"+ encodings[i]+ ": " + str(round(value[0][2], 2))+"'")
+                    exec("self."+Id+".text='"+ encodings[i]+ ": " + str(round(value[0][0], 2))+"'")
 
             #Change color value True(Blue) / False(Red)
             else:
-                if value[0][2] == 1:
+                if value[0][0] == 1:
                     color = (176/255, 18/255, 0/255)
                     exec("self."+Id+".color= color")
                 else:
@@ -224,7 +238,7 @@ class MainScreen(Screen):
         if not self.dialog:
             self.dialog = MDDialog(
                 title = "LoRa Status",
-                text = "USB-connected: " + self.USB_connected + "\n" + "Connection established: " + self.connection_established,
+                text = "Connection established: " + self.connection_established,
                 buttons = [
                     MDFillRoundFlatButton(
                         text = "OK",

@@ -1,12 +1,12 @@
 #include "SoftwareSerial.h"
 
 // LAPTOP
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
 
 // STATIONARY
-//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
-//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 
 #define TXpin 11 
@@ -123,7 +123,7 @@ void loop()
   }
   else
   {
-    char data[] = "30133769";
+    char data[] = "305069";
     RAKLoRa.rk_sendP2PData(1, "10", data);
     delay(200);
   }

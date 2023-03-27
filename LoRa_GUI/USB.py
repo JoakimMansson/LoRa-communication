@@ -60,7 +60,7 @@ class USB():
     
 
 if __name__ == '__main__':
-    reader = USB(baud=19200)
+    reader = USB(port="COM9",baud=19200)
     converter = LoRaConverter(define_comma_value="99", define_new_value="69")
     while True:
         data = reader.get_DIGITS_USB()
