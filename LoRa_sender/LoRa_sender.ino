@@ -100,11 +100,14 @@ String filter_data(String input_str)
 
 void loop() 
 {
+
   if(Serial.available())
   {
-    String input = Serial.readStringUntil("\n");  // Read the data from the serial port
-    char data[input.length()+1];
     
+    String input = Serial.readStringUntil(".");  // Read the data from the serial port
+    Serial.flush();
+    char data[input.length()+1];
+    Serial.println(input);
    
       // make sure that the new string is null terminated
     data[input.length()] = '\0';
