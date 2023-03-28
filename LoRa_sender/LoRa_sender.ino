@@ -1,12 +1,14 @@
 #include "SoftwareSerial.h"
+#include <Wire.h>
+#include <map>
 
 // LAPTOP
-//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
 
 // STATIONARY
-#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
+//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 
 #define TXpin 11 
@@ -20,9 +22,11 @@ int ERROR_PIN = 13;
 int SERIAL_AVAILABLE_PIN = 9;
 RAK811 RAKLoRa(RAKSerial,Serial);
 
+
+
+
 void setUART(int current_LoRa_baud, int new_LoRa_baud)
 {
-
   digitalWrite(RESET_PIN, LOW);   // turn the pin low to Reset
   delay(400);
   digitalWrite(RESET_PIN, HIGH);    // then high to enable
@@ -45,6 +49,7 @@ void setup()
   pinMode(RESET_PIN, OUTPUT);
   pinMode(ERROR_PIN, OUTPUT);
   pinMode(SERIAL_AVAILABLE_PIN, OUTPUT);
+  pinMode(9, INPUT);
   
   Serial.begin(19200);
   
@@ -81,29 +86,34 @@ void setup()
   Serial.setTimeout(5);
   RAKSerial.setTimeout(5);
 
-  //DebugSerial.print("Sending packets status: " + RAKLoRa.rk_sendP2PData("100", "1000", "1337"));
+  Wire.begin(8); // Starting I2C communication on channel 8
+  Wire.onReceive(I2C_receive); // Setting interrupt to: I2C_receive()
+}
+
+// Interrupt function which gets called when data
+// is available on I2C
+void I2C_receive()
+{
+  String data = "";
+  while(Wire.available())
+  {
+    char c = Wire.read();
+    data += c;
+  }
+  Serial.println("Received data: " + data);
 }
 
 String filter_data(String input_str)
 {
-  String new_str = "";
-  for(int i = 0; i < input_str.length(); i++)
-  {
-    unsigned int ascii_val = input_str.charAt(i);
-    if(ascii_val >= 48 && ascii_val <=  57)
-    {
-      new_str += input_str.substring(i, i+1);
-    }
-  }
-  return new_str;
+  
 }
 
 void loop() 
 {
 
+/*
   if(Serial.available())
   {
-    
     String input = Serial.readStringUntil(".");  // Read the data from the serial port
     Serial.flush();
     char data[input.length()+1];
@@ -120,6 +130,7 @@ void loop()
     // data must > 10
     RAKLoRa.rk_sendP2PData(1, "10", data);
     digitalWrite(ERROR_PIN, HIGH);
+    Serial.println(data);
   }
   else
   {
@@ -127,6 +138,8 @@ void loop()
     RAKLoRa.rk_sendP2PData(1, "10", data);
     delay(200);
   }
+
+  */
 }
 
 
