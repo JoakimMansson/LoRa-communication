@@ -1,6 +1,5 @@
 #include "SoftwareSerial.h"
 #include <Wire.h>
-#include <map>
 
 // LAPTOP
 #include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
@@ -22,7 +21,8 @@ int ERROR_PIN = 13;
 int SERIAL_AVAILABLE_PIN = 9;
 RAK811 RAKLoRa(RAKSerial,Serial);
 
-
+// input_iDs = [M_statusinfo, M_bus, M_velocity, M_temp,]
+int input_IDs[] = {1025,1026,1027,1035};
 
 
 void setUART(int current_LoRa_baud, int new_LoRa_baud)
@@ -92,7 +92,7 @@ void setup()
 
 // Interrupt function which gets called when data
 // is available on I2C
-void I2C_receive()
+void I2C_receive() 
 {
   String data = "";
   while(Wire.available())
@@ -100,12 +100,22 @@ void I2C_receive()
     char c = Wire.read();
     data += c;
   }
-  Serial.println("Received data: " + data);
+  filter_data(data);
 }
 
-String filter_data(String input_str)
+String filter_data(String input_data)
 {
-  
+  String id = "";
+  for(int i = 0; i < input_data.length(); i++)
+  {
+    if(input_data.substring(i,i+1) == ",") break;
+    id += input_data.substring(i,i+1);
+  }
+
+  if(id == "1026" || id == "1027")
+  {
+    Serial.println(input_data);
+  }
 }
 
 void loop() 
