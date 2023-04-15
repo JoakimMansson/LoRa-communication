@@ -109,14 +109,14 @@ class MainScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         #Used for accessing USB
-        self.USB = USB(port="COM9",baud=19200)
-        print("Using port: " + str(self.USB.get_used_port()))
+        #self.USB = USB(port="COM9",baud=19200)
+        #print("Using port: " + str(self.USB.get_used_port()))
 
         # Used to convert string 1[99]0[69]5[99]5[69] -> [1.0, 5.5]
         self.converter = LoRaConverter(define_comma_value="99", define_new_value="69")
 
         self.connection_established = "False"
-        self.read_lora = Clock.schedule_interval(lambda dt: self.read_LoRa_data(), 0.3)
+        #self.read_lora = Clock.schedule_interval(lambda dt: self.read_LoRa_data(), 0.3)
         self.upd_values = Clock.schedule_interval(lambda dt: self.update_data(), 1)
 
     def read_LoRa_data(self):
