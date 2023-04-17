@@ -115,28 +115,42 @@ void setup()
 void I2C_receive() 
 {
   String data = "";
+  String data_segment = "";
   while(Wire.available())
   {
     char c = Wire.read();
-    data = c + data; // String should be reversed
+    if(c == ' ')
+    {
+      data = data_segment + ' ' + data;
+      data_segment = "";
+    }
+    else
+    {
+      data_segment += c;
+    }
   }
 
+  debugln("Data: " + data);
+
+
   String ID = "";
-  for(int i = 0; i < data.length(); i++)
+  for(int i = data.length(); i >= 0; i--)
   {
-    String substr = data.substring(i, i+1);
+    if(i-1 < 0) break;
+    
+    String substr = data.substring(i-1, i);
     if(substr != " ")
     {
       ID += substr;
     }
     else
     {
-      data = data.substring(i+1);
+      data = data.substring(0, i); // DOUBLE CHECK
       break;
     }
   }
 
-  update_data(ID, data);  
+  //update_data(ID, data);  
   //Serial.print("Unfiltered data: ");
   //Serial.println(data);
   //filter_data(data);
@@ -232,7 +246,7 @@ void update_data(String ID, String data)
   
   debug("ID: " + ID);
   debug(", data: " + data);
-  debugln();
+
   // Convert string to binary
   uint32_t binary_value = 0;
   char *value_token;
