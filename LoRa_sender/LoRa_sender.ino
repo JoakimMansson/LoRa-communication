@@ -116,7 +116,7 @@ void I2C_receive()
 {
   String data = "";
   String data_segment = "";
-  while(Wire.available())
+  while(Wire.available()) // To read in data backwards (1744 18 0 0 5 188 0 199 114) -> (114 199 0 188 5 0 0 18 1744)
   {
     char c = Wire.read();
     if(c == ' ')
@@ -130,27 +130,24 @@ void I2C_receive()
     }
   }
 
-  debugln("Data: " + data);
-
-
+  
   String ID = "";
-  for(int i = data.length(); i >= 0; i--)
-  {
-    if(i-1 < 0) break;
-    
-    String substr = data.substring(i-1, i);
-    if(substr != " ")
+  for(int i = data.length()-1; i >= 0; i--)
+  {    
+    String c = data.substring(i-1, i);
+    if(c != " ")
     {
-      ID += substr;
+      ID = c + ID;
     }
     else
     {
-      data = data.substring(0, i); // DOUBLE CHECK
       break;
     }
   }
-
-  //update_data(ID, data);  
+  
+  debugln("Data: " + data);
+  debugln("ID: " + ID);
+  update_data(ID, data);  
   //Serial.print("Unfiltered data: ");
   //Serial.println(data);
   //filter_data(data);
@@ -170,6 +167,7 @@ String get_data_substr(String input_data, int start_byte, int nr_bytes)
   {
     for(int i = 0; i < input_data.length(); i++)
     {
+
       if(nr_bytes_counter == start_byte)
       {
         str_start_index = i;
