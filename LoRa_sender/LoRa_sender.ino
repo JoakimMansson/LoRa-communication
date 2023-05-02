@@ -3,12 +3,12 @@
 #include <Arduino.h>
 
 // LAPTOP
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
 
 // STATIONARY
-//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
-//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 // For debugging
 #define DEBUG 1
@@ -121,7 +121,7 @@ void I2C_receive()
     char c = Wire.read();
     if(c == ' ')
     {
-      data = data_segment + ' ' + data;
+      data += data_segment + ' ';
       data_segment = "";
     }
     else
@@ -132,15 +132,16 @@ void I2C_receive()
 
   
   String ID = "";
-  for(int i = data.length()-1; i >= 0; i--)
+  for(int i = 0; i < data.length(); i++)
   {    
-    String c = data.substring(i-1, i);
+    String c = data.substring(i, i+1);
     if(c != " ")
     {
-      ID = c + ID;
+      ID += c;
     }
     else
     {
+      data = data.substring(i+1);
       break;
     }
   }
@@ -154,108 +155,83 @@ void I2C_receive()
 }
 
 
-// Input data ex: 8 130 8 5 115 130 8 210
-// Start byte ex: 3 -> 8
-// Nr bytes ex: 2
-// OUTPUT ex: 8 5
-String get_data_substr(String input_data, int start_byte, int nr_bytes)
-{
-  // To extract correct string index
-  int str_start_index = 0;
-  int nr_bytes_counter = 0;
-  if(start_byte != 0)
-  {
-    for(int i = 0; i < input_data.length(); i++)
-    {
+/// Function to extract a specified number of bytes from a string and convert to decimal number
+double extractBytesToDecimal(String data, int startByte, int numBytes) {
+  // Extract the specified number of bytes from the string
+  String byteStr = data.substring(startByte, startByte + numBytes);
 
-      if(nr_bytes_counter == start_byte)
-      {
-        str_start_index = i;
-        break;
-      }
-      if(input_data.substring(i,i+1) == " ")
-      {
-        nr_bytes_counter += 1;
-      }
-      
-    }
-  }
-    
-  String extracted_data = "";
-  nr_bytes_counter = 0;
-  int current_index = str_start_index;
- while(nr_bytes_counter < nr_bytes)
+
+  // Calculate startbyte index position ex. startByte: 4 = index: 14 (65 160 0 0 68 (250 0 0 1027))
+  int startIndex = 0;
+  int byteCounter = 0; // Bytes inc. for each " "
+  for(int i = 0; i < data.length(); i++)
   {
-    if(input_data.substring(current_index, current_index+1) == " ")
+
+    if(byteCounter == startByte)
     {
-      nr_bytes_counter += 1;
-    }
-    current_index += 1;
-    
-    if(current_index >= input_data.length())
-    {
-      // Reached end of input string
+      startIndex = i;
       break;
     }
-  }
 
-  extracted_data = input_data.substring(str_start_index, current_index);
-  return extracted_data;
-}
-
-uint32_t get_bits_value(uint32_t data, int start_bit, int end_excluding_bit)
-{
-  String bit_string = String(data, BIN);
-
-  if(start_bit == end_excluding_bit)
-  {
-    return byte(atoi(bit_string.substring(start_bit, start_bit+1).c_str()));
-  }
-  else
-  {
-    return bit_string_to_int(bit_string.substring(start_bit, end_excluding_bit));
-  }
-}
-
-uint32_t bit_string_to_int(String bit_string)
-{
-  debugln("bit_string: " + bit_string);
-  uint32_t result = 0;
-  for (int i = 0; i < bit_string.length(); i++) 
-  {
-    result = result << 1;
-    if (bit_string.charAt(i) == '1') 
+    if(data.substring(i, i+1) == " ")
     {
-      result |= 1;
+      byteCounter++;
     }
-  }
-  return result;
-}
-
-uint32_t reverse_bits(uint32_t bit)
-{
   
-  return 0;
-}
+  }
 
+  debugln("Start index: " + String(startIndex));
+
+
+  
+  byte bytes[numBytes];
+
+  byteCounter = 0;
+  String byte_data = "";
+  for(int i = startIndex; i < data.length(); i++)
+  {
+
+    String data_substr = data.substring(i, i+1);
+
+    if(byteCounter == numBytes)
+    {
+      break;
+    }
+    else if(data_substr == " ")
+    {
+      debugln(byte_data);
+      bytes[byteCounter] = (byte) strtoul(byte_data.c_str(), NULL, 10);
+      byteCounter++;
+      byte_data = "";
+    }
+    else
+    {
+      byte_data += data_substr; 
+    }
+
+  }
+
+
+  /* For debugging of output bytes
+  for(int i = 0; i < numBytes; i++)
+  {
+    debug(bytes[i]);
+    debug(" ");
+  }
+  debugln();
+  */
+  
+  
+
+  float value;
+  memcpy(&value, bytes, numBytes);
+  // Return the decimal value
+  return value;
+}
 
 void update_data(String ID, String data)
 {
-  
-  debug("ID: " + ID);
-  debug(", data: " + data);
 
-  // Convert string to binary
-  uint32_t binary_value = 0;
-  char *value_token;
-  value_token = strtok((char*)data.c_str(), " ");
-  for (int i = 0; i < 8; i++) {
-    byte value_byte = byte(atoi(value_token));
-    bitWrite(binary_value, i * 8, value_byte);
-    value_token = strtok(NULL, " ");
-  }
-  
-  // Print binary value
 
   if(ID == "1025") //0x401 Status Information
   {
@@ -263,33 +239,22 @@ void update_data(String ID, String data)
 
   if(ID.compareTo("1026") == 0) //0x402 Bus Measurement
   {
-    uint32_t bus_current = get_bits_value(binary_value, 0, 32);
-    uint32_t bus_voltage = get_bits_value(binary_value, 32, 64);
-    
 
-    debugln("Bus voltage un-reversed: " + String(bus_voltage));
-    debugln("Bus current un-reversed: " + String(bus_current));
-
-    bus_voltage = reverse_bits(bus_voltage);
-    bus_current = reverse_bits(bus_current);
-
-    debugln("Bus voltage reversed: " + String(bus_voltage));
-    debugln("Bus current reversed: " + String(bus_current));
   }
 
   if(ID.compareTo("1027") == 0) //0x403 Velocity Measurement
   {
-    uint32_t motor_velocity = get_bits_value(binary_value, 0, 32);
-    uint32_t vehicle_velocity = get_bits_value(binary_value, 32, 64);
-    debugln("Motor vel: " + motor_velocity);
-    debugln("Vehicle vel: "  + vehicle_velocity);
+    double vehicle_velocity = extractBytesToDecimal(data, 0, 4);
+    debugln();
+    double motor_velocity = extractBytesToDecimal(data, 4, 4);
+
+    debugln("Vehicle vel: " + String(vehicle_velocity));
+    debugln("Motor vel: " + String(motor_velocity));
+    
   }
   if(ID.compareTo("1035") == 0) //0x40B MC Temperatures
   {
-    uint32_t motor_temp = get_bits_value(binary_value, 0, 32);
-    uint32_t heatsink_temp = get_bits_value(binary_value, 32, 64);
-    debugln("Motor vel: " + motor_temp);
-    debugln("Vehicle vel: "  + heatsink_temp);
+
   }
   
 }
