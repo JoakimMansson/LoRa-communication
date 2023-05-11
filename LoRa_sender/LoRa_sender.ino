@@ -3,12 +3,12 @@
 #include <Arduino.h>
 
 // LAPTOP
-//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
-//#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
+#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
+#include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
 
 // STATIONARY
-#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
-#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
+//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
+//#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
 // For debugging
 #define DEBUG 1
@@ -160,7 +160,6 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
   // Extract the specified number of bytes from the string
   String byteStr = data.substring(startByte, startByte + numBytes);
 
-
   // Calculate startbyte index position ex. startByte: 4 = index: 14 (65 160 0 0 68 (250 0 0 1027))
   int startIndex = 0;
   int byteCounter = 0; // Bytes inc. for each " "
@@ -221,8 +220,6 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
   debugln();
   */
   
-  
-
   float value;
   memcpy(&value, bytes, numBytes);
   // Return the decimal value
@@ -290,7 +287,6 @@ void loop()
     RAKLoRa.rk_sendP2PData(1, "10", data);
     delay(200);
   }
-
   */
 }
 
