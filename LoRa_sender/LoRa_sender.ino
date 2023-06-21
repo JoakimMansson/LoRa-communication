@@ -33,14 +33,44 @@ int SERIAL_AVAILABLE_PIN = 9;
 RAK811 RAKLoRa(RAKSerial,Serial);
 
 // Motor Controller
-float HeatsinkTemp = 0.0;
-float MotorTemp = 0.0;
+double HeatsinkTemp = 0.0;
+double MotorTemp = 0.0;
 
-float BusCurrent = 0.0;
-float BusVoltage = 0.0;
+double BusCurrent = 0.0;
+double BusVoltage = 0.0;
 
-float MotorVelocity = 0.0;
-float VehicleVelocity = 0.0;
+double MotorVelocity = 0.0;
+double VehicleVelocity = 0.0;
+
+// BMS (Orion 2)
+
+double PackVoltage = 0.0;
+double PackCurrent = 0.0;
+double PackAverageCurrent = 0.0;
+
+double PackSOH = 0.0;
+double PackSOC = 0.0;
+
+double LowCellVoltage = 0.0;
+double HighCellVoltage = 0.0;
+double AvgCellVoltage = 0.0;
+
+double HighTemperature = 0.0;
+double LowTemperature = 0.0;
+double AvgTemperature = 0.0;
+double InternalTemperature = 0.0;
+
+// MPPT (SEC-B175-7A TPEE)
+double MPPTInputVoltage = 0.0;
+double MPPTInputCurrent = 0.0;
+
+double MPPTOutputVoltage = 0.0;
+double MPPTOutputCurrent = 0.0;
+
+// Insulator (ISO165C-1 Bender)
+
+
+
 
 
 
@@ -106,7 +136,7 @@ void setup()
   Serial.setTimeout(5);
   RAKSerial.setTimeout(5);
 
-  Wire.begin(8); // Starting I2C communication on channel 8
+  Wire.begin(9); // Starting I2C communication on channel 8
   Wire.onReceive(I2C_receive); // Setting interrupt to: I2C_receive()
 }
 
@@ -146,8 +176,8 @@ void I2C_receive()
     }
   }
   
-  debugln("Data: " + data);
-  debugln("ID: " + ID);
+  //debugln("Data: " + data);
+  //debugln("ID: " + ID);
   update_data(ID, data);  
   //Serial.print("Unfiltered data: ");
   //Serial.println(data);
@@ -155,10 +185,9 @@ void I2C_receive()
 }
 
 
-/// Function to extract a specified number of bytes from a string and convert to decimal number
+// For motor controller
+// Function to extract a specified number of bytes from a string (IEEE754) and convert to decimal number
 double extractBytesToDecimal(String data, int startByte, int numBytes) {
-  // Extract the specified number of bytes from the string
-  String byteStr = data.substring(startByte, startByte + numBytes);
 
   // Calculate startbyte index position ex. startByte: 4 = index: 14 (65 160 0 0 68 (250 0 0 1027))
   int startIndex = 0;
@@ -179,10 +208,8 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
   
   }
 
-  debugln("Start index: " + String(startIndex));
+  //debugln("Start index: " + String(startIndex));
 
-
-  
   byte bytes[numBytes];
 
   byteCounter = 0;
@@ -198,7 +225,7 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
     }
     else if(data_substr == " ")
     {
-      debugln(byte_data);
+      //debugln(byte_data);
       bytes[byteCounter] = (byte) strtoul(byte_data.c_str(), NULL, 10);
       byteCounter++;
       byte_data = "";
@@ -209,8 +236,6 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
     }
 
   }
-
-
   /* For debugging of output bytes
   for(int i = 0; i < numBytes; i++)
   {
@@ -220,40 +245,225 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
   debugln();
   */
   
-  float value;
+  double value;
   memcpy(&value, bytes, numBytes);
   // Return the decimal value
   return value;
 }
 
+double extractSingleByte(String data, int startByte)
+{
+
+  // Calculate startbyte index position ex. startByte: 4 = index: 14 (65 160 0 0 68 (250 0 0 1027))
+  int startIndex = 0;
+  int byteCounter = 0; // Bytes inc. for each " "
+  for(int i = 0; i < data.length(); i++)
+  {
+
+    if(byteCounter == startByte)
+    {
+      startIndex = i;
+      break;
+    }
+
+    if(data.substring(i, i+1) == " ")
+    {
+      byteCounter++;
+    }
+  }
+
+  byteCounter = 0;
+  String byte_data = "";
+  double MPPTdata = 0;
+  for(int i = startIndex; i < data.length(); i++)
+  {
+
+    String data_substr = data.substring(i, i+1);
+
+
+    if(data_substr == " ")
+    {
+      byteCounter++;
+
+      if(byteCounter == 1)
+      {
+        MPPTdata = byte_data.toDouble();
+        break;
+      }
+    }
+    else
+    {
+      byte_data += data_substr; 
+    }
+  }
+
+  return MPPTdata;
+}
+
+double extractDataMPPT(String data, int startByte, int numBytes)
+{
+  // Calculate startbyte index position ex. startByte: 4 = index: 14 (65 160 0 0 68 (250 0 0 1027))
+  int startIndex = 0;
+  int byteCounter = 0; // Bytes inc. for each " "
+  for(int i = 0; i < data.length(); i++)
+  {
+
+    if(byteCounter == startByte)
+    {
+      startIndex = i;
+      break;
+    }
+
+    if(data.substring(i, i+1) == " ")
+    {
+      byteCounter++;
+    }
+  
+  }
+  //debugln("Start index: " + String(startIndex));
+
+  byteCounter = 0;
+  String byte_data = "";
+  double MPPTdata = 0;
+  for(int i = startIndex; i < data.length(); i++)
+  {
+
+    String data_substr = data.substring(i, i+1);
+
+    if(byteCounter == numBytes)
+    {
+      break;
+    }
+    else if(data_substr == " ")
+    {
+      byteCounter++;
+
+      if(byteCounter == 1)
+      {
+        MPPTdata += 256*byte_data.toDouble();
+      }
+      else
+      {
+        MPPTdata += byte_data.toDouble();
+      }
+      byte_data = "";
+    }
+    else
+    {
+      byte_data += data_substr; 
+    }
+  }
+
+  return MPPTdata;
+}
+
 void update_data(String ID, String data)
 {
 
+  debugln("ID: " + ID + ", Data: " + data);
 
   if(ID == "1025") //0x401 Status Information
   {
   }
 
-  if(ID.compareTo("1026") == 0) //0x402 Bus Measurement
+  if(ID == "1026") //0x402 Bus Measurement
   {
 
   }
 
-  if(ID.compareTo("1027") == 0) //0x403 Velocity Measurement
+  if(ID == "1027") //0x403 Velocity Measurement
   {
-    double vehicle_velocity = extractBytesToDecimal(data, 0, 4);
+    double motor_velocity = extractBytesToDecimal(data, 0, 4);
+    double vehicle_velocity = extractBytesToDecimal(data, 4, 4);
     debugln();
-    double motor_velocity = extractBytesToDecimal(data, 4, 4);
 
     debugln("Vehicle vel: " + String(vehicle_velocity));
     debugln("Motor vel: " + String(motor_velocity));
     
+ 
   }
-  if(ID.compareTo("1035") == 0) //0x40B MC Temperatures
-  {
 
+  if(ID == "1035") //0x40B MC Temperatures
+  {
+    double heat_sink_temp = extractBytesToDecimal(data, 0, 4);
+    double motor_temp = extractBytesToDecimal(data, 4, 4);
+
+    debugln("Heat-sink temp: " + String(heat_sink_temp));
+    debugln("Motor temp: " + String(motor_temp));
+  }
+
+  // ---------------- BMS ------------------------
+  if(ID == "1536")
+  {
+    PackCurrent = 0.1*extractDataMPPT(data, 0, 2);
+    PackVoltage = 0.1*extractDataMPPT(data, 2, 2);
+    PackAverageCurrent = 0.1*extractDataMPPT(data, 4, 2);
+    PackSOH = extractSingleByte(data, 6);
+    PackSOC = extractSingleByte(data, 7);
+
+    debugln("PackCurrent: " + String(PackCurrent));
+    debugln("PackVoltage: " + String(PackVoltage));
+    debugln("PackAverageCurrent: " + String(PackAverageCurrent));
+    debugln("PackSOH: " + String(PackSOH));
+    debugln("PackSOC: " + String(PackSOC));
+  }
+
+  if(ID == "1537") //BMS VOLTAGES
+  {
+    LowCellVoltage = 0.0001*extractDataMPPT(data, 0, 2);
+    HighCellVoltage = 0.0001*extractDataMPPT(data, 2, 2);
+    AvgCellVoltage = 0.0001*extractDataMPPT(data, 4, 2);
+
+    debugln("LowCellVoltage: " + String(LowCellVoltage));
+    debugln("HighCellVoltage: " + String(HighCellVoltage));
+    debugln("AvgCellVoltage: " + String(AvgCellVoltage));
+   
+  }
+
+  if(ID == "1538") //BMS TEMPERATURES
+  {
+    HighTemperature = extractSingleByte(data, 0);
+    LowTemperature = extractSingleByte(data, 1);
+    AvgTemperature = extractSingleByte(data, 2);
+    InternalTemperature = extractSingleByte(data, 3);
+
+    debugln("HighTemperature: " + String(HighTemperature));
+    debugln("LowTemperature: " + String(LowTemperature));
+    debugln("AvgTemperature: " + String(AvgTemperature));
+    debugln("InternalTemperature: " + String(InternalTemperature));
   }
   
+  // ----------------- MPPT ----------------------
+  if(ID == "512") 
+  { // InputVolt, InputCurrent, OutputVolt, OutputCurrent
+    MPPTInputVoltage = 0.01*extractDataMPPT(data, 0, 2);
+    MPPTInputCurrent = 0.0005*extractDataMPPT(data, 2, 2);
+    MPPTOutputVoltage = 0.01*extractDataMPPT(data, 4, 2);
+    MPPTOutputCurrent = 0.0005*extractDataMPPT(data, 6, 2);
+
+    /*
+    debugln("MPPT IN_VOLT: " + String(MPPTInputVoltage));
+    debugln("MPPT IN_CURRENT: " + String(MPPTInputVoltage));
+    debugln("MPPT OUT_VOLT: " + String(MPPTOutputVoltage));
+    debugln("MPPT OUT_CURRENT: " + String(MPPTOutputCurrent));
+    */
+  }
+
+  if(ID == "513") //
+  {// Errors
+
+  }
+
+
+  // ----- HÄR ÄR DET BUGGIGT, LORAn KRASCHAR NÄR DENNA KODEN KÖRS 
+  // ----- TROLIGEN P.GA noInterrupts() INTE FAKTISKT STOPPAR I2C INTERRUPT
+  // ----- FRÅN ECUn OCH NÄR DEN FÖRSÖKER SKICKA KOMMER EN INTERRUPT  
+  //noInterrupts();
+  //char loradata[] = "1337";
+  //RAKLoRa.rk_sendP2PData(1, "10", loradata);
+  //interrupts();
+
+  /* -------------------------------------------------------------- */
 }
 
 void loop() 
