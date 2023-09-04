@@ -1,4 +1,5 @@
-#include "SoftwareSerial.h"
+#include "Serial_CAN_FD.h"
+#include <SoftwareSerial.h>
 
 // LAPTOP
 #include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
@@ -8,12 +9,16 @@
 //#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.h"
 //#include "C:\Users\jocke\Desktop\GitStuff\LoRa-communication\RAK811.cpp"
 
+#define can_tx  8           // tx of serial can module connect to D2
+#define can_rx  9           // rx of serial can module connect to D3
 
-#define TXpin 11 
+SoftwareSerial can_serial(can_tx, can_rx);
+#define uart_can    can_serial
+
+
+#define TXpin 11
 #define RXpin 10
 #define WORK_MODE LoRaP2P   //  LoRaWAN or LoRaP2P
-#define TXpin 11   // Set the virtual serial port pins
-#define RXpin 10
 
 SoftwareSerial RAKSerial(RXpin,TXpin);    // Declare a virtual serial port
 int RESET_PIN = 12;
@@ -39,22 +44,60 @@ void setUART(int current_LoRa_baud, int new_LoRa_baud)
   digitalWrite(RESET_PIN, HIGH);    // then high to enable
 }
 
+/* ------------------- CAN ------------------- */
+void uart_init(unsigned long baudrate)
+{
+    uart_can.begin(baudrate);
+}
+
+void uart_write(unsigned char c)
+{
+    uart_can.write(c);
+}
+
+unsigned char uart_read()
+{
+    return uart_can.read();
+}
+
+int uart_available()
+{
+    return uart_can.available();
+}
+
+/* ------------------- /CAN ------------------- */
+
+String remove_chars(String input_str)
+{
+  String new_str = "";
+  for(int i = 0; i < input_str.length(); i++)
+  {
+    unsigned int char_ascii_value = input_str.charAt(i);
+    if(char_ascii_value >= 48 && char_ascii_value <=  57)
+    {
+      new_str += input_str.substring(i, i+1);
+    }
+  }
+
+  return new_str;
+}
+
 void setup() 
 {
   pinMode(RESET_PIN, OUTPUT);
   pinMode(RECEIVED_PIN, OUTPUT);
   
-  Serial.begin(19200);
+  Serial.begin(9600);
   
   while(Serial.read()>= 0) {}  
   while(!Serial);
 
   Serial.println("StartUP");
 
-  int current_baud = 19200;
-  setUART(current_baud, 19200); //Sets UART -> "at+uart=31250,8,0,0,0"
+  int current_baud = 9600;
+  setUART(current_baud, 9600); //Sets UART -> "at+uart=31250,8,0,0,0"
 
-  RAKSerial.begin(19200); // Arduino Shield
+  RAKSerial.begin(9600); // Arduino Shield
   delay(200);
   Serial.println(RAKLoRa.rk_getBand());
   delay(200);
@@ -80,27 +123,34 @@ void setup()
   RAKSerial.setTimeout(5);
   Serial.setTimeout(5);
 
+  //Serial.begin(115200);
+  uart_init(9600);
+  can_speed_20(500000);          // set can bus baudrate to 500k
+
   //String setUART = RAKLoRa.rk_setUARTConfig(9600, 8, 0, 0, 0);
   //DebugSerial.println("UART conf. successful: " + String(setUART));
 }
 
-String remove_chars(String input_str)
-{
-  String new_str = "";
-  for(int i = 0; i < input_str.length(); i++)
-  {
-    unsigned int char_ascii_value = input_str.charAt(i);
-    if(char_ascii_value >= 48 && char_ascii_value <=  57)
-    {
-      new_str += input_str.substring(i, i+1);
-    }
-  }
-
-  return new_str;
-}
-
 void loop() 
 {
+  if (RAKSerial.available()) {
+    String data = RAKSerial.readStringUntil("\n");
+    Serial.println("LoRa data: " + data);
+  }
+  else {
+    unsigned long __id = 0x01;      // can id
+    unsigned char __ext = 0;        // extended frame or standard frame
+    unsigned char __rtr = 0;        // remote frame or data frame
+    unsigned char __fdf = 0;        // can fd or can 2.0
+    unsigned char __len = 4;        // data length
+    unsigned char __dta[8] = {1, 2, 3, 4, 5, 6, 7, 8};      // data
+
+    can_send(__id, __ext, __rtr, __fdf, __len, __dta);
+    delay(100);
+  }
+  
+
+/*
   if(RAKSerial.available())
   {
     String filtered_data = "";
@@ -122,12 +172,8 @@ void loop()
     }
     filtered_data = remove_chars(filtered_data);
     Serial.println(filtered_data);
-    
-    digitalWrite(RECEIVED_PIN, LOW);
-    
+        
   }
-  digitalWrite(RECEIVED_PIN, HIGH);
-  
-  //digitalWrite(RECEIVED_PIN, LOW);
+*/
 }
 

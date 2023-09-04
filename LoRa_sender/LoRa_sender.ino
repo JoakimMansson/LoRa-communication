@@ -1,7 +1,7 @@
-#include "SoftwareSerial.h"
 #include <Wire.h>
 #include <Arduino.h>
-
+#include <SoftwareSerial.h>
+#include "Serial_CAN_FD.h"
 // LAPTOP
 #include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.h"
 #include "C:\Users\jocke\OneDrive\Skrivbord\GitHub\LoRa-communication\RAK811.cpp"
@@ -31,6 +31,23 @@ int RESET_PIN = 12;
 int ERROR_PIN = 13;
 int SERIAL_AVAILABLE_PIN = 9;
 RAK811 RAKLoRa(RAKSerial,Serial);
+
+#define can_tx  8           // tx of serial can module connect to D2
+#define can_rx  9           // rx of serial can module connect to D3
+
+SoftwareSerial can_serial(can_tx, can_rx);
+
+#define uart_can can_serial
+
+// CAN Variables
+unsigned long __id = 0;
+unsigned char __ext = 0; // extended frame or standard frame
+unsigned char __rtr = 0; // remote frame or data frame
+unsigned char __fdf = 0; // can fd or can 2.0
+unsigned char __len = 0; // data length
+unsigned char __dta[8]; // data
+
+unsigned long lastTimeMsgSent = millis();
 
 // Motor Controller
 double HeatsinkTemp = 0.0;
@@ -70,12 +87,27 @@ double MPPTOutputCurrent = 0.0;
 // Insulator (ISO165C-1 Bender)
 
 
+void uart_init(unsigned long baudrate)
+{
+    uart_can.begin(baudrate);
+}
 
+void uart_write(unsigned char c)
+{
+    uart_can.write(c);
+}
 
+unsigned char uart_read()
+{
+    return uart_can.read();
+}
 
+int uart_available()
+{
+    return uart_can.available();
+}
 
-
-void setUART(int current_LoRa_baud, int new_LoRa_baud)
+void set_uart_LoRa(int current_LoRa_baud, int new_LoRa_baud)
 {
   digitalWrite(RESET_PIN, LOW);   // turn the pin low to Reset
   delay(400);
@@ -91,97 +123,6 @@ void setUART(int current_LoRa_baud, int new_LoRa_baud)
   digitalWrite(RESET_PIN, LOW);   // turn the pin low to Reset
   delay(400);
   digitalWrite(RESET_PIN, HIGH);    // then high to enable
-}
-
-
-void setup() 
-{
-  pinMode(RESET_PIN, OUTPUT);
-  pinMode(ERROR_PIN, OUTPUT);
-  pinMode(SERIAL_AVAILABLE_PIN, OUTPUT);
-  pinMode(9, INPUT);
-  
-  Serial.begin(19200);
-  
-  while(Serial.read()>= 0) {}  
-  while(!Serial);
-
-  Serial.println("StartUP");
-
-  int current_baud = 19200;
-  setUART(current_baud, 19200); //Sets UART -> "at+uart=31250,8,0,0,0"
-
-  RAKSerial.begin(19200); // Arduino Shield
-  delay(200);
-  Serial.println(RAKLoRa.rk_getBand());
-  delay(200);
-
-  Serial.println("Current version: " + RAKLoRa.rk_currentVersion());
-
-  /*   Workmode 0 = LoRaWAN, 1 = P2P    */
-  Serial.println("Initializing workmode");
-
-  RAKLoRa.rk_setWorkingMode(1); //Sets work mode to P2P
-  Serial.println("Current mode: " + RAKLoRa.rk_getCurrentMode());
-  delay(200);
-  Serial.println("Work mode initialized");
-
-
-  Serial.println("Initializing p2p");
-  String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "9", "2", "1", "8", "20");
-  Serial.println("P2P initialized: " + P2pInitialized);
-
-  //String setUART = RAKLoRa.rk_setUARTConfig(9600, 8, 0, 0, 0);
-  //DebugSerial.println("UART conf.   successful: " + String(setUART));
-  Serial.setTimeout(5);
-  RAKSerial.setTimeout(5);
-
-  Wire.begin(9); // Starting I2C communication on channel 8
-  Wire.onReceive(I2C_receive); // Setting interrupt to: I2C_receive()
-}
-
-// Interrupt function which gets called when data
-// is available on I2C
-void I2C_receive() 
-{
-  String data = "";
-  String data_segment = "";
-  while(Wire.available()) // To read in data backwards (1744 18 0 0 5 188 0 199 114) -> (114 199 0 188 5 0 0 18 1744)
-  {
-    char c = Wire.read();
-    if(c == ' ')
-    {
-      data += data_segment + ' ';
-      data_segment = "";
-    }
-    else
-    {
-      data_segment += c;
-    }
-  }
-
-  
-  String ID = "";
-  for(int i = 0; i < data.length(); i++)
-  {    
-    String c = data.substring(i, i+1);
-    if(c != " ")
-    {
-      ID += c;
-    }
-    else
-    {
-      data = data.substring(i+1);
-      break;
-    }
-  }
-  
-  //debugln("Data: " + data);
-  //debugln("ID: " + ID);
-  update_data(ID, data);  
-  //Serial.print("Unfiltered data: ");
-  //Serial.println(data);
-  //filter_data(data);
 }
 
 
@@ -253,7 +194,6 @@ double extractBytesToDecimal(String data, int startByte, int numBytes) {
 
 double extractSingleByte(String data, int startByte)
 {
-
   // Calculate startbyte index position ex. startByte: 4 = index: 14 (65 160 0 0 68 (250 0 0 1027))
   int startIndex = 0;
   int byteCounter = 0; // Bytes inc. for each " "
@@ -466,8 +406,105 @@ void update_data(String ID, String data)
   /* -------------------------------------------------------------- */
 }
 
+String convertCANMsgToLoRa(const int can_id, const unsigned char* can_data, const unsigned int can_data_size) {
+  String newLoraMsg = String(can_id);
+  for (int i = 0; i < can_data_size; i++) {
+    newLoraMsg += String(can_data[i]);
+  }
+
+  return newLoraMsg;
+}
+
+
+void setup() 
+{
+  pinMode(RESET_PIN, OUTPUT);
+  pinMode(ERROR_PIN, OUTPUT);
+  pinMode(SERIAL_AVAILABLE_PIN, OUTPUT);
+  pinMode(9, INPUT);
+  
+  Serial.begin(9600);
+  
+  while(Serial.read()>= 0) {}  
+  while(!Serial);
+
+  Serial.println("StartUP");
+
+  int current_baud = 19200;
+  set_uart_LoRa(current_baud, 19200); //Sets UART -> "at+uart=31250,8,0,0,0"
+
+  RAKSerial.begin(19200); // Arduino Shield
+  delay(200);
+  Serial.println(RAKLoRa.rk_getBand());
+  delay(200);
+
+  Serial.println("Current version: " + RAKLoRa.rk_currentVersion());
+
+  /*   Workmode 0 = LoRaWAN, 1 = P2P    */
+  Serial.println("Initializing workmode");
+
+  RAKLoRa.rk_setWorkingMode(1); //Sets work mode to P2P
+  Serial.println("Current mode: " + RAKLoRa.rk_getCurrentMode());
+  delay(200);
+  Serial.println("Work mode initialized");
+
+
+  Serial.println("Initializing p2p");
+  String P2pInitialized = RAKLoRa.rk_initP2P("869525000", "9", "2", "1", "8", "20");
+  Serial.println("P2P initialized: " + P2pInitialized);
+
+  //String setUART = RAKLoRa.rk_setUARTConfig(9600, 8, 0, 0, 0);
+  //DebugSerial.println("UART conf.   successful: " + String(setUART));
+  Serial.setTimeout(5);
+  RAKSerial.setTimeout(5);
+
+  /* SETUP OF CAN MODULE */
+  uart_init(9600);
+  can_speed_20(500000);          // set can bus baudrate to 500k
+}
+
+
 void loop() 
 {
+
+  if(read_can(&__id, &__ext, &__rtr, &__fdf, &__len, __dta))
+    {
+        Serial.print("GET DATA FROM: 0x");
+        Serial.println(__id, HEX);
+        Serial.print("EXT = ");
+        Serial.println(__ext);
+        Serial.print("RTR = ");
+        Serial.println(__rtr);
+        Serial.print("FDF = ");
+        Serial.println(__fdf);
+        Serial.print("LEN = ");
+        Serial.println(__len);
+        
+        for(int i=0; i<__len; i++)
+        {
+            Serial.print(__dta[i]);
+            Serial.print(' ');
+        }
+        Serial.println();
+
+        if (millis() - lastTimeMsgSent >= 5000) {
+          /*String msgToSend = convertCANMsgToLoRa(__id, __dta, __len);
+          debugln("Lora msg to send: " + msgToSend);
+          
+          char data[__len];
+          // make sure that the new string is null terminated
+          //data[__len] = '\0';
+
+          for (int i = 0; i < __len; i++) 
+          {
+              data[i] = __dta[i];
+          }
+          RAKLoRa.rk_sendP2PData(2, "100", data);
+          */
+          RAKLoRa.rk_sendP2PData(1, "100", "1337");
+          lastTimeMsgSent = millis();
+        }
+    }
 
   //Serial.println("Doin loop");
 /*
