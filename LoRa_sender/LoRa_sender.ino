@@ -47,7 +47,7 @@ unsigned char __fdf = 0; // can fd or can 2.0
 unsigned char __len = 0; // data length
 unsigned char __dta[8]; // data
 
-unsigned long lastTimeMsgSent = millis();
+unsigned long lastTimeLORASent = millis();
 
 // Motor Controller
 double HeatsinkTemp = 0.0;
@@ -430,10 +430,10 @@ void setup()
 
   Serial.println("StartUP");
 
-  int current_baud = 19200;
-  set_uart_LoRa(current_baud, 19200); //Sets UART -> "at+uart=31250,8,0,0,0"
+  int current_baud = 9600;
+  set_uart_LoRa(current_baud, 9600); //Sets UART -> "at+uart=31250,8,0,0,0"
 
-  RAKSerial.begin(19200); // Arduino Shield
+  RAKSerial.begin(9600); // Arduino Shield
   delay(200);
   Serial.println(RAKLoRa.rk_getBand());
   delay(200);
@@ -487,7 +487,7 @@ void loop()
         }
         Serial.println();
 
-        if (millis() - lastTimeMsgSent >= 5000) {
+        if (millis() - lastTimeLORASent >= 500) {
           /*String msgToSend = convertCANMsgToLoRa(__id, __dta, __len);
           debugln("Lora msg to send: " + msgToSend);
           
@@ -501,8 +501,8 @@ void loop()
           }
           RAKLoRa.rk_sendP2PData(2, "100", data);
           */
-          RAKLoRa.rk_sendP2PData(1, "100", "1337");
-          lastTimeMsgSent = millis();
+          RAKLoRa.rk_sendP2PData(1, "10", "1337");
+          lastTimeLORASent = millis();
         }
     }
 

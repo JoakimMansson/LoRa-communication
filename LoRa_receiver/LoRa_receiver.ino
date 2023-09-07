@@ -15,7 +15,6 @@
 SoftwareSerial can_serial(can_tx, can_rx);
 #define uart_can    can_serial
 
-
 #define TXpin 11
 #define RXpin 10
 #define WORK_MODE LoRaP2P   //  LoRaWAN or LoRaP2P
@@ -24,6 +23,8 @@ SoftwareSerial RAKSerial(RXpin,TXpin);    // Declare a virtual serial port
 int RESET_PIN = 12;
 int RECEIVED_PIN = 13;
 RAK811 RAKLoRa(RAKSerial,Serial);
+
+unsigned long lastTimeCANSent = millis();
 
 void setUART(int current_LoRa_baud, int new_LoRa_baud)
 {
@@ -133,20 +134,23 @@ void setup()
 
 void loop() 
 {
-  if (RAKSerial.available()) {
-    String data = RAKSerial.readStringUntil("\n");
-    Serial.println("LoRa data: " + data);
+  int available = RAKSerial.available();
+  if (available) {
+  Serial.println("Data available: " + String(available));
+  String data = RAKSerial.readStringUntil("\n");
+  Serial.println("LoRa data: " + data);
   }
-  else {
-    unsigned long __id = 0x01;      // can id
+  else if (millis() - lastTimeCANSent > 50){
+    unsigned long __id = 0x01;      // can id 
     unsigned char __ext = 0;        // extended frame or standard frame
     unsigned char __rtr = 0;        // remote frame or data frame
     unsigned char __fdf = 0;        // can fd or can 2.0
     unsigned char __len = 4;        // data length
-    unsigned char __dta[8] = {1, 2, 3, 4, 5, 6, 7, 8};      // data
+    unsigned char __dta[4] = {1, 2, 3, 4};      // data
 
     can_send(__id, __ext, __rtr, __fdf, __len, __dta);
-    delay(100);
+    lastTimeCANSent = millis();
+    //delay(50);
   }
   
 
